@@ -22,13 +22,13 @@ export class Engine {
     this.commandoClient.registry
       .registerDefaultTypes()
       .registerGroups([
-        ["misc", "Misc commands"],
         ["adm", "Administration commands"],
-        ["audio", "Audio related commands"],
+        ["misc", "Misc commands"],
       ])
       .registerDefaultGroups()
       .registerDefaultCommands()
       .registerCommandsIn(path.resolve(__dirname, "../", "commands"));
+    console.log(path.resolve(__dirname, "../", "commands"));
     //register events
     this.registerEvents();
     //login to discord

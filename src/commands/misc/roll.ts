@@ -1,5 +1,5 @@
 import { Command, CommandoClient, CommandoMessage } from "discord.js-commando";
-import winston from "winston";
+import { logger } from "../../logger";
 
 export default class Roll extends Command {
   constructor(client: CommandoClient) {
@@ -39,7 +39,7 @@ export default class Roll extends Command {
       const roll = this.roll(rangeMin, rangeMax);
       return message.reply(`роллит ${roll}`);
     } catch (error) {
-      winston.error(error.message, [error]);
+      logger.error(error.message, [error]);
       return message.reply(error.message);
     }
   }
