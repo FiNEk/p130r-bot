@@ -6,7 +6,7 @@ import { logger } from "../logger";
 import { createConnection, Connection } from "typeorm";
 
 export class Engine {
-  public db!: Connection;
+  public db: Connection;
   public commandoClient = new CommandoClient({
     commandPrefix: config.get("prefix"),
   });
@@ -39,8 +39,9 @@ export class Engine {
     this.commandoClient.once("ready", () => {
       if (this.commandoClient.user) {
         logger.info(`Logged in as ${this.commandoClient.user.tag}!`);
-        // нет нужды ждать промис
-        this.commandoClient.user.setActivity("Oppressing minorities");
+        this.commandoClient.user.setActivity("Oppressing minorities").catch((err) => {
+          logger.error(err.message, [err]);
+        });
       }
     });
     this.commandoClient.on("error", (error) => {

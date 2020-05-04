@@ -22,8 +22,6 @@ export default class Nuke extends Command {
           default: 0,
         },
       ],
-      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-      // @ts-ignore
       clientPermissions: ["MANAGE_MESSAGES"],
       userPermissions: ["MANAGE_MESSAGES"],
     });
