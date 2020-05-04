@@ -1,16 +1,20 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
+import User from "./User";
 
 @Entity()
-export class Result {
+export default class Result {
     @PrimaryGeneratedColumn()
     public id: number;
 
     @Column()
-    public guildId: number;
+    public guildId: string;
 
     @Column()
     public resultDate: Date;
 
     @Column()
-    public winnerId: number;
+    public winnerId: string;
+
+    @ManyToOne(type => User, user => user.wins)
+    public winner: User;
 }
