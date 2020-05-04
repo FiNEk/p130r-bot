@@ -4,7 +4,7 @@ import { Entity, Column, PrimaryColumn } from "typeorm";
 export class User {
   @Column()
   @PrimaryColumn()
-  id: number;
+  public id: number;
   
   @Column()
   public guildId: number;
