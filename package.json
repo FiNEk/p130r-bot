@@ -16,6 +16,7 @@
     "@types/node": "^13.13.4",
     "@types/superagent": "^4.1.7",
     "@types/winston": "^2.4.4",
+    "@types/ws": "^7.2.4",
     "bufferutil": "^4.0.1",
     "config": "^3.3.1",
     "discord.js": "^12.2.0",
