@@ -1,5 +1,5 @@
 import { Command, CommandoClient, CommandoMessage } from "discord.js-commando";
-import { VoiceChannel, VoiceConnection } from "discord.js";
+import { VoiceConnection } from "discord.js";
 import { logger } from "../../logger";
 import yaTTS from "../../core/ya-tts";
 import { ReadableStreamBuffer } from "stream-buffers";
@@ -42,8 +42,13 @@ export default class TTS extends Command {
         } else {
           return null;
         }
+      } else {
+        if (this.resultMessage !== undefined) {
+          return message.say(this.resultMessage);
+        } else {
+          return message.reply("Нужно находится в голосовом канале");
+        }
       }
-      return message.reply("Нужно находится в голосовом канале");
     } catch (error) {
       return message.reply(error.message);
     }
