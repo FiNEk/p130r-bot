@@ -1,6 +1,8 @@
 import { getConnection } from "typeorm";
 import { logger } from "../logger";
-import { User as PidorUser, Token } from "../entity";
+// import { User as PidorUser, Token } from "../entity";
+import PidorUser from "../entity/User";
+import Token from "../entity/Token";
 
 class Database {
   async getUser(userId: string, guildId: string, playing?: boolean): Promise<PidorUser | undefined> {
@@ -20,7 +22,7 @@ class Database {
     }
   }
 
-  async addUser(userId: string, guildId: string, playing?: boolean) {
+  async addUser(userId: string, guildId: string, playing?: boolean): Promise<void> {
     try {
       await getConnection()
         .createQueryBuilder()
@@ -38,7 +40,7 @@ class Database {
     }
   }
 
-  async addToken(token: string, expiresAt: number) {
+  async addToken(token: string, expiresAt: number): Promise<void> {
     try {
       await getConnection()
         .createQueryBuilder()
