@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import { Engine } from "./core/engine";
 import { logger } from "./logger";
 

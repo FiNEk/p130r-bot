@@ -1,4 +1,3 @@
-import "reflect-metadata";
 import path from "path";
 import { CommandoClient } from "discord.js-commando";
 import config from "config";
@@ -12,7 +11,7 @@ export class Engine {
   });
   private readonly TOKEN: string = config.get("token.discord");
 
-  public async init() {
+  public async init(): Promise<void> {
     if (!this.TOKEN) {
       logger.error("token not found");
       process.exit(1);
@@ -43,7 +42,7 @@ export class Engine {
     }
   }
 
-  private registerEvents() {
+  private registerEvents(): void {
     this.commandoClient.once("ready", () => {
       if (this.commandoClient.user) {
         logger.info(`Logged in as ${this.commandoClient.user.tag}!`);
