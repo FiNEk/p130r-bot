@@ -1,7 +1,9 @@
 import { Command, CommandoClient, CommandoMessage } from "discord.js-commando";
 import { logger } from "../../logger";
 import { Game } from "../../core/game";
-import { User, Message } from "discord.js";
+import { User } from "discord.js";
+import Database from "../../core/db";
+import TTS from "../adm/tts";
 
 export default class Play extends Command {
   constructor(client: CommandoClient) {
@@ -20,8 +22,12 @@ export default class Play extends Command {
       const result = await game.getTodayResult();
       const winnerUser = await new User(this.client, {id: result.result?.winnerId }).fetch();
       const winnerMember = await message.guild.member(winnerUser)?.fetch();
+      const announcement = await Database.getRandomAnnouncement()
+      const winnerMessage = announcement?.text.replace('{winner}', winnerMember?.toString() ?? winnerUser?.username ?? 'какой-то хуй');
+      const ttsMessage = announcement?.text.replace('{winner}', winnerMember?.displayName ?? 'какой-то хуй') ?? "";
       if (result.isNew) {
-        return message.say(`Победителем сегодняшней олимпиады становится ${winnerMember ?? winnerUser?.username ?? 'какой-то хуй'}`);
+        new TTS(this.client, winnerMessage).run(message, { text: ttsMessage });
+        return null;
       } else {
         return message.say(`Пидор дня уже определен, это ${winnerMember?.displayName ?? winnerUser?.username ?? 'какой-то хуй'}`);
       }

@@ -105,7 +105,6 @@ class Database {
       logger.error(error);
     }
   }
-}
 
   async addAnnouncement(text: string): Promise<void> {
     try {
