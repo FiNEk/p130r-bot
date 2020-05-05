@@ -1,9 +1,7 @@
 module.exports = {
-  type: "sqlite",
+  type: "postgres",
   name: "default",
-  database: "./database.sqlite",
   synchronize: true,
-  logging: false,
   entities: ["out/entity/**/*.js"],
   migrations: ["out/migration/**/*.js"],
   subscribers: ["out/subscriber/**/*.js"],
