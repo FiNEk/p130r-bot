@@ -4,6 +4,7 @@ import fs from "fs";
 import path from "path";
 import _ from "lodash";
 import { logger } from "../logger";
+import db from "./db";
 
 class YaTTS {
   private readonly yndKey: string;
@@ -14,7 +15,7 @@ class YaTTS {
     responseType: "arraybuffer",
   });
   constructor() {
-    const pemPath = path.resolve(__dirname, "../", "private.pem");
+    const pemPath = path.resolve(__dirname, "../../", "private.pem");
     logger.info(`reading pem key in ${pemPath}`);
     this.yndKey = fs.readFileSync(pemPath).toString();
     if (!this.yndKey) {
@@ -27,8 +28,10 @@ class YaTTS {
   }
 
   public async refreshIamToken() {
-    const { iamToken } = await this.getIamToken();
-    this.setAuthHeader(iamToken);
+    const response = await this.getIamToken();
+    this.setAuthHeader(response.iamToken);
+    const unixTime = Math.floor(Date.parse(response.expiresAt) / 1000);
+    await db.addToken(response.iamToken, unixTime);
   }
 
   public async synthesize(text: string, options?: TTSOptions) {
@@ -54,7 +57,6 @@ class YaTTS {
   private async getIamToken(): Promise<IamTokenResponse> {
     try {
       const jwt = this.generateAuthJwt().toString();
-      console.log(jwt);
       const headers = {
         typ: "JWT",
         alg: "PS256",
