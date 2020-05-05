@@ -1,8 +1,9 @@
 import { Command, CommandoClient, CommandoMessage } from "discord.js-commando";
-import { VoiceChannel } from "discord.js";
+import { VoiceChannel, VoiceConnection } from "discord.js";
 import { logger } from "../../logger";
 import yaTTS from "../../core/ya-tts";
 import { ReadableStreamBuffer } from "stream-buffers";
+import path from "path";
 
 export default class TTS extends Command {
   constructor(client: CommandoClient) {
@@ -30,7 +31,10 @@ export default class TTS extends Command {
         const oggStream = await yaTTS.synthesize(text, {
           format: "oggopus",
         });
-        await this.playAudioStream(oggStream, message.member.voice.channel);
+        const connection = await message.member.voice.channel.join();
+        await this.playDrumRoll(connection);
+        await this.playAudioStream(oggStream, connection);
+        connection.disconnect();
         return null;
       }
       return message.reply("Нужно находится в голосовом канале");
@@ -39,23 +43,42 @@ export default class TTS extends Command {
     }
   }
 
-  private async playAudioStream(stream: ReadableStreamBuffer, channel: VoiceChannel): Promise<void> {
-    const connection = await channel.join();
-    const audioDispatcher = connection
-      .play(stream, {
-        type: "ogg/opus",
-      })
-      .on("finish", () => connection.disconnect());
-    stream.stop();
-    return new Promise<void>((resolve, reject) => {
-      connection.on("disconnect", () => {
-        resolve();
+  private async playDrumRoll(connection: VoiceConnection): Promise<void> {
+    try {
+      const drumPath = path.resolve(__dirname, "../../../", "assets/drumroll.mp3");
+      return new Promise((resolve, reject) => {
+        const drumDispatcher = connection.play(drumPath);
+        drumDispatcher.on("finish", () => resolve());
+        drumDispatcher.on("error", (error) => {
+          logger.error(error);
+          connection.disconnect();
+          reject(error);
+        });
       });
-      audioDispatcher.on("error", (error) => {
-        logger.error(error);
-        connection.disconnect();
-        reject(error.message);
+    } catch (error) {
+      logger.error(error);
+      connection.disconnect();
+    }
+  }
+
+  private async playAudioStream(stream: ReadableStreamBuffer, connection: VoiceConnection): Promise<void> {
+    try {
+      return new Promise<void>((resolve, reject) => {
+        const audioDispatcher = connection
+          .play(stream, {
+            type: "ogg/opus",
+          })
+          .on("finish", () => resolve());
+        stream.stop();
+        audioDispatcher.on("error", (error) => {
+          logger.error(error);
+          connection.disconnect();
+          reject(error.message);
+        });
       });
-    });
+    } catch (error) {
+      logger.error(error);
+      connection.disconnect();
+    }
   }
 }
