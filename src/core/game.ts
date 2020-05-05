@@ -5,17 +5,17 @@ import { logger } from "../logger";
 
 export class Game {
   private readonly guildId: string;
-  
+
   constructor(guildId: string) {
     this.guildId = guildId;
   }
 
-  async getTodayResult(): Promise<{ result: Pidor | undefined, isNew: boolean }> {
-      const date = (new Date().setUTCHours(0, 0, 0, 0) - 10800000) / 1000;
-      return this.getResult(date);
+  async getTodayResult(): Promise<{ result: Pidor | undefined; isNew: boolean }> {
+    const date = (new Date().setUTCHours(0, 0, 0, 0) - 10800000) / 1000;
+    return this.getResult(date);
   }
 
-  async getResult(date: number): Promise<{ result: Pidor | undefined, isNew: boolean }> {
+  async getResult(date: number): Promise<{ result: Pidor | undefined; isNew: boolean }> {
     try {
       let result = await Database.getResult(this.guildId, date);
       if (result === undefined) {

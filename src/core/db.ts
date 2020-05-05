@@ -68,10 +68,10 @@ class Database {
   async getPlayers(guildId: string): Promise<PidorUser[] | undefined> {
     try {
       return getConnection()
-            .getRepository(PidorUser)
-            .find({
-              where: { guildId: guildId }
-            });
+        .getRepository(PidorUser)
+        .find({
+          where: { guildId: guildId },
+        });
     } catch (error) {
       logger.error(error);
     }
@@ -80,10 +80,10 @@ class Database {
   async getResult(guildId: string, date: number): Promise<Pidor | undefined> {
     try {
       return getConnection()
-            .getRepository(Pidor)
-            .findOne({
-              where: { guildId: guildId, resultDate: date }
-            });
+        .getRepository(Pidor)
+        .findOne({
+          where: { guildId: guildId, resultDate: date },
+        });
     } catch (error) {
       logger.error(error);
     }
