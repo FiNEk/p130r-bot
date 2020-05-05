@@ -21,9 +21,9 @@ export default class Play extends Command {
       const winnerUser = await new User(this.client, {id: result.result?.winnerId }).fetch();
       const winnerMember = await message.guild.member(winnerUser)?.fetch();
       if (result.isNew) {
-        return message.say(`Победителем сегодняшней олимпиады становится ${winnerMember?.displayName ?? winnerMember?.user.username ?? 'какой-то хуй'}`);
+        return message.say(`Победителем сегодняшней олимпиады становится ${winnerMember ?? winnerUser?.username ?? 'какой-то хуй'}`);
       } else {
-        return message.say(`Пидор дня уже определен, это ${winnerMember?.displayName ?? winnerMember?.user.username ?? 'какой-то хуй'}`);
+        return message.say(`Пидор дня уже определен, это ${winnerMember?.displayName ?? winnerUser?.username ?? 'какой-то хуй'}`);
       }
     } catch (error) {
       logger.error(error);
