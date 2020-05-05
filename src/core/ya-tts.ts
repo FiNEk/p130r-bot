@@ -3,9 +3,9 @@ import jwt from "jsonwebtoken";
 import fs from "fs";
 import path from "path";
 import _ from "lodash";
-import { logger } from "./logger";
+import { logger } from "../logger";
 
-export class YandexApiService {
+class YaTTS {
   private readonly yndKey: string;
   private readonly serviceAccId: string = "aje6hdd4lhb0k1g1lvsu";
   private readonly serviceKeyId: string = "ajeg9479o31bv4d0lcn1";
@@ -26,7 +26,32 @@ export class YandexApiService {
     this.request.defaults.headers.common["Authorization"] = `Bearer ${iamToken}`;
   }
 
-  public async getIAMtoken(): Promise<IamTokenResponse> {
+  public async refreshIamToken() {
+    const { iamToken } = await this.getIamToken();
+    this.setAuthHeader(iamToken);
+  }
+
+  public async synthesize(text: string, options?: TTSOptions) {
+    try {
+      const reqBody = new URLSearchParams();
+      reqBody.append("text", text);
+      if (options) {
+        for (const [key, value] of _.toPairs(options)) {
+          const str = `${value}`;
+          reqBody.append(key, str);
+        }
+      }
+      const res = await this.request.post("/speech/v1/tts:synthesize", reqBody, {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      });
+      return Buffer.from(res.data);
+    } catch (e) {
+      logger.error(e, [e]);
+      throw new Error("Failed to get TTS file");
+    }
+  }
+
+  private async getIamToken(): Promise<IamTokenResponse> {
     try {
       const jwt = this.generateAuthJwt().toString();
       console.log(jwt);
@@ -51,26 +76,6 @@ export class YandexApiService {
     }
   }
 
-  public async getTTS(text: string, options?: TTSOptions) {
-    try {
-      const reqBody = new URLSearchParams();
-      reqBody.append("text", text);
-      if (options) {
-        for (const [key, value] of _.toPairs(options)) {
-          const str = `${value}`;
-          reqBody.append(key, str);
-        }
-      }
-      const res = await this.request.post("/speech/v1/tts:synthesize", reqBody, {
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      });
-      return Buffer.from(res.data);
-    } catch (e) {
-      logger.error(e, [e]);
-      throw new Error("Failed to get TTS file");
-    }
-  }
-
   private generateAuthJwt(): string {
     const now = Math.floor(new Date().getTime() / 1000);
     const payload = {
@@ -82,6 +87,7 @@ export class YandexApiService {
     return jwt.sign(payload, this.yndKey, { algorithm: "PS256", keyid: this.serviceKeyId });
   }
 }
+
 type IamTokenResponse = { iamToken: string; expiresAt: string };
 type TTSOptions = {
   ssml?: string;
@@ -92,3 +98,5 @@ type TTSOptions = {
   format?: "lpcm" | "oggopus";
   sampleRateHertz?: "48000" | "16000" | "8000";
 };
+
+export default new YaTTS();

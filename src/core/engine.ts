@@ -3,14 +3,13 @@ import path from "path";
 import { CommandoClient } from "discord.js-commando";
 import config from "config";
 import { logger } from "../logger";
-import { YandexApiService } from "../yandexapi.service";
+import yaTTS from "./ya-tts";
 import { promises as fs } from "fs";
 
 export class Engine {
   public commandoClient = new CommandoClient({
     commandPrefix: config.get("prefix"),
   });
-  public yandexService = new YandexApiService();
   private readonly TOKEN: string = config.get("token.discord");
 
   public async init() {
@@ -35,9 +34,8 @@ export class Engine {
 
     // tts helloworld, remove later
     try {
-      const { iamToken } = await this.yandexService.getIAMtoken();
-      this.yandexService.setAuthHeader(iamToken);
-      const file = await this.yandexService.getTTS("привет мир", { format: "oggopus" });
+      await yaTTS.refreshIamToken();
+      const file = await yaTTS.synthesize("привет мир", { format: "oggopus" });
       await fs.writeFile(path.resolve(__dirname, "../../", "output.ogg"), file, { encoding: "utf8" });
     } catch (e) {
       logger.error(e, [e]);
