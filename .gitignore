@@ -7,3 +7,5 @@ temp/
 out/
 *.log
 *.sqlite
+private.pem
+token.txt

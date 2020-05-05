@@ -1,42 +1,44 @@
-import "reflect-metadata";
 import path from "path";
-import { CommandoClient } from "discord.js-commando";
+import { promises as fs } from "fs";
 import config from "config";
+import { CommandoClient } from "discord.js-commando";
+import { createConnection } from "typeorm";
 import { logger } from "../logger";
-import { createConnection, Connection } from "typeorm";
+import yaTTS from "./ya-tts";
 
 export class Engine {
-  public db: Connection;
   public commandoClient = new CommandoClient({
     commandPrefix: config.get("prefix"),
   });
   private readonly TOKEN: string = config.get("token.discord");
 
-  public async init() {
+  public async init(): Promise<void> {
     if (!this.TOKEN) {
       logger.error("token not found");
       process.exit(1);
     }
-    this.db = await createConnection();
+    //sqlite
+    await createConnection();
+    //tts
+    await yaTTS.init();
     //register commands
     this.commandoClient.registry
       .registerDefaultTypes()
       .registerGroups([
         ["adm", "Administration commands"],
         ["misc", "Misc commands"],
-        ["pidor", "Contest commands"]
+        ["pidor", "Contest commands"],
       ])
       .registerDefaultGroups()
       .registerDefaultCommands()
       .registerCommandsIn(path.resolve(__dirname, "../", "commands"));
-    console.log(path.resolve(__dirname, "../", "commands"));
     //register events
     this.registerEvents();
     //login to discord
     await this.commandoClient.login(this.TOKEN);
   }
 
-  private registerEvents() {
+  private registerEvents(): void {
     this.commandoClient.once("ready", () => {
       if (this.commandoClient.user) {
         logger.info(`Logged in as ${this.commandoClient.user.tag}!`);
