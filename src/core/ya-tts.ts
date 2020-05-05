@@ -30,6 +30,7 @@ class YaTTS {
       const newToken = await this.refreshIamToken();
       this.setAuthHeader(newToken);
     });
+    this.tokenRefresh.start();
   }
 
   public async init(): Promise<void> {
