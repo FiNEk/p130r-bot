@@ -9,11 +9,14 @@ export class Engine {
   public commandoClient = new CommandoClient({
     commandPrefix: config.get("prefix"),
   });
-  private readonly TOKEN: string = config.get("token.discord");
+  private readonly DISCORD_TOKEN: string = config.get("token.discord");
 
   public async init(): Promise<void> {
-    if (!this.TOKEN) {
-      logger.error("token not found");
+    if (!this.DISCORD_TOKEN) {
+      logger.error("discord token not found");
+      process.exit(1);
+    } else if (!config.get("yaKey")) {
+      logger.error("yandex key not found");
       process.exit(1);
     }
     //sqlite
@@ -34,7 +37,7 @@ export class Engine {
     //register events
     this.registerEvents();
     //login to discord
-    await this.commandoClient.login(this.TOKEN);
+    await this.commandoClient.login(this.DISCORD_TOKEN);
   }
 
   private registerEvents(): void {

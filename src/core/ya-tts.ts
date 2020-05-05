@@ -1,7 +1,6 @@
 import axios, { AxiosInstance } from "axios";
 import jwt from "jsonwebtoken";
 import config from "config";
-import path from "path";
 import _ from "lodash";
 import { CronJob } from "cron";
 import { logger } from "../logger";
@@ -21,8 +20,6 @@ class YaTTS {
   private tokenRefresh: CronJob;
 
   constructor() {
-    const pemPath = path.resolve(__dirname, "../../", "private.pem");
-    logger.info(`reading pem key in ${pemPath}`);
     this.yndKey = config.get("yaKey");
     if (!this.yndKey) {
       throw new Error("$PIDOR_YANDEX not found");
@@ -66,8 +63,9 @@ class YaTTS {
         logger.info("good token");
         return tokenRecord;
       }
+      logger.info("token outdated");
+      return;
     }
-    logger.info("token outdated");
     return;
   }
 
