@@ -3,13 +3,14 @@ import path from "path";
 import { CommandoClient } from "discord.js-commando";
 import config from "config";
 import { logger } from "../logger";
-import { createConnection, Connection } from "typeorm";
+import { YandexApiService } from "../yandexapi.service";
+import { promises as fs } from "fs";
 
 export class Engine {
-  public db: Connection;
   public commandoClient = new CommandoClient({
     commandPrefix: config.get("prefix"),
   });
+  public yandexService = new YandexApiService();
   private readonly TOKEN: string = config.get("token.discord");
 
   public async init() {
@@ -17,7 +18,6 @@ export class Engine {
       logger.error("token not found");
       process.exit(1);
     }
-    this.db = await createConnection();
     //register commands
     this.commandoClient.registry
       .registerDefaultTypes()
@@ -28,11 +28,20 @@ export class Engine {
       .registerDefaultGroups()
       .registerDefaultCommands()
       .registerCommandsIn(path.resolve(__dirname, "../", "commands"));
-    console.log(path.resolve(__dirname, "../", "commands"));
     //register events
     this.registerEvents();
     //login to discord
     await this.commandoClient.login(this.TOKEN);
+
+    // tts helloworld, remove later
+    try {
+      const { iamToken } = await this.yandexService.getIAMtoken();
+      this.yandexService.setAuthHeader(iamToken);
+      const file = await this.yandexService.getTTS("привет мир", { format: "oggopus" });
+      await fs.writeFile(path.resolve(__dirname, "../../", "output.ogg"), file, { encoding: "utf8" });
+    } catch (e) {
+      logger.error(e, [e]);
+    }
   }
 
   private registerEvents() {
