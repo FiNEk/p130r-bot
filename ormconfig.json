@@ -3,7 +3,7 @@
   "database": "database.sqlite",
   "synchronize": true,
   "logging": false,
-  "entities": ["out/entity/**/*.ts"],
+  "entities": ["out/entity/**/*.ts", "out/entity/**/*.js"],
   "migrations": ["out/migration/**/*.ts"],
   "subscribers": ["out/subscriber/**/*.ts"],
   "cli": {
