@@ -10,7 +10,7 @@ import Token from "../entity/Token";
 import { ReadableStreamBuffer } from "stream-buffers";
 
 class YaTTS {
-  private currentVoice: AvailableTTSvoices = "filipp";
+  private currentVoice: AvailableTTSvoices | string = "filipp";
   private readonly yndKey: string;
   private readonly serviceAccId: string = "aje6hdd4lhb0k1g1lvsu";
   private readonly serviceKeyId: string = "ajeg9479o31bv4d0lcn1";
@@ -35,10 +35,12 @@ class YaTTS {
     this.tokenRefresh.start();
   }
 
-  set voice(voice: AvailableTTSvoices) {
+  set voice(voice: AvailableTTSvoices | string) {
     const availableVoices = ["oksana", "jane", "omazh", "zahar", "erkanyavas", "alena", "filipp", "alyss", "nick"];
     if (availableVoices.includes(voice)) {
       this.currentVoice = voice;
+    } else {
+      throw new Error("Unavailable voice");
     }
   }
   get voice() {
