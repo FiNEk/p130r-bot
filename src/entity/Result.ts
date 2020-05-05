@@ -10,7 +10,7 @@ export default class Result {
   public guildId: string;
 
   @Column()
-  public resultDate: Date;
+  public resultTimestamp: number;
 
   @Column()
   public winnerId: string;
