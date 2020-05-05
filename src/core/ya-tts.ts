@@ -3,8 +3,10 @@ import jwt from "jsonwebtoken";
 import fs from "fs";
 import path from "path";
 import _ from "lodash";
+import { CronJob } from "cron";
 import { logger } from "../logger";
 import db from "./db";
+import Token from "../entity/Token";
 
 class YaTTS {
   private readonly yndKey: string;
@@ -14,6 +16,8 @@ class YaTTS {
     baseURL: "https://tts.api.cloud.yandex.net",
     responseType: "arraybuffer",
   });
+  private tokenRefresh: CronJob;
+
   constructor() {
     const pemPath = path.resolve(__dirname, "../../", "private.pem");
     logger.info(`reading pem key in ${pemPath}`);
@@ -21,17 +25,35 @@ class YaTTS {
     if (!this.yndKey) {
       throw new Error("JWT pem not found");
     }
+    this.tokenRefresh = new CronJob("0 */6 * * *", async () => {
+      logger.info("Updating iamtoken @cronjob");
+      const newToken = await this.refreshIamToken();
+      this.setAuthHeader(newToken);
+    });
   }
 
-  public setAuthHeader(iamToken: string): void {
-    this.request.defaults.headers.common["Authorization"] = `Bearer ${iamToken}`;
+  public async init(): Promise<void> {
+    const lastToken = await YaTTS.getLocalToken();
+    if (lastToken) {
+      this.setAuthHeader(lastToken.token);
+    } else {
+      const newToken = await this.refreshIamToken();
+      this.setAuthHeader(newToken);
+    }
   }
 
-  public async refreshIamToken(): Promise<void> {
-    const response = await this.getIamToken();
-    this.setAuthHeader(response.iamToken);
-    const unixTime = Math.floor(Date.parse(response.expiresAt) / 1000);
-    await db.addToken(response.iamToken, unixTime);
+  private static async getLocalToken(): Promise<Token | undefined> {
+    const tokenRecord = await db.getToken();
+    const now = Math.floor(new Date().getTime() / 1000);
+    if (tokenRecord) {
+      const maxAge = tokenRecord.expiresAt - 6 * 3600; // минус 6 часов от 12 часов.
+      if (now < maxAge) {
+        logger.info("good token");
+        return tokenRecord;
+      }
+    }
+    logger.info("token outdated");
+    return;
   }
 
   public async synthesize(text: string, options?: TTSOptions): Promise<Buffer> {
@@ -52,6 +74,18 @@ class YaTTS {
       logger.error(e, [e]);
       throw new Error("Failed to get TTS file");
     }
+  }
+
+  private setAuthHeader(iamToken: string): void {
+    this.request.defaults.headers.common["Authorization"] = `Bearer ${iamToken}`;
+  }
+
+  private async refreshIamToken(): Promise<string> {
+    logger.info("generating new token");
+    const response = await this.getIamToken();
+    const unixTime = Math.floor(Date.parse(response.expiresAt) / 1000);
+    await db.addToken(response.iamToken, unixTime);
+    return response.iamToken;
   }
 
   private async getIamToken(): Promise<IamTokenResponse> {
