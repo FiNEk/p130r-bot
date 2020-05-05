@@ -73,7 +73,14 @@ class YaTTS {
       return Buffer.from(res.data);
     } catch (e) {
       logger.error(e, [e]);
-      throw new Error("Failed to get TTS file");
+      if (e.code === 401) {
+        logger.info("token expired");
+        const newToken = await this.refreshIamToken();
+        this.setAuthHeader(newToken);
+        return this.synthesize(text, options);
+      } else {
+        throw new Error("Failed to get TTS file");
+      }
     }
   }
 
