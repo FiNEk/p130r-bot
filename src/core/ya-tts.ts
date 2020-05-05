@@ -23,18 +23,18 @@ class YaTTS {
     }
   }
 
-  public setAuthHeader(iamToken: string) {
+  public setAuthHeader(iamToken: string): void {
     this.request.defaults.headers.common["Authorization"] = `Bearer ${iamToken}`;
   }
 
-  public async refreshIamToken() {
+  public async refreshIamToken(): Promise<void> {
     const response = await this.getIamToken();
     this.setAuthHeader(response.iamToken);
     const unixTime = Math.floor(Date.parse(response.expiresAt) / 1000);
     await db.addToken(response.iamToken, unixTime);
   }
 
-  public async synthesize(text: string, options?: TTSOptions) {
+  public async synthesize(text: string, options?: TTSOptions): Promise<Buffer> {
     try {
       const reqBody = new URLSearchParams();
       reqBody.append("text", text);
