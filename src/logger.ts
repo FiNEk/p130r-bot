@@ -1,7 +1,6 @@
 import { createLogger, format, transports } from "winston";
 import path from "path";
 
-const { combine, printf } = format;
 const rootFolder = path.resolve(__dirname, "../");
 const logFormat = format.combine(
   format.colorize(),
