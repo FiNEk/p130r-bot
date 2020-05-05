@@ -30,11 +30,13 @@ export default class Nuke extends Command {
   async run(message: CommandoMessage, { time, user }: { time: number; user: User }) {
     try {
       const timestamp = +new Date() - time * 60000;
+      // TODO fetch fatter chunks
       const allMessages = await message.channel.messages.fetch({
         before: message.id,
-        limit: 50,
+        limit: 100,
       });
       const toRemove = allMessages.filter((m) => {
+        // TODO check if message older than 14 days
         if (user) {
           return m.author.username === user.username && m.createdTimestamp >= timestamp;
         }
