@@ -1,6 +1,5 @@
 import { getConnection } from "typeorm";
 import { logger } from "../logger";
-// import { User as PidorUser, Token } from "../entity";
 import PidorUser from "../entity/User";
 import Token from "../entity/Token";
 
@@ -52,7 +51,14 @@ class Database {
         })
         .execute();
     } catch (error) {
-      logger.error("addToken");
+      logger.error(error);
+    }
+  }
+
+  async getToken(): Promise<Token | undefined> {
+    try {
+      return getConnection().getRepository(Token).createQueryBuilder("token").orderBy("token.tid", "ASC").getOne();
+    } catch (error) {
       logger.error(error);
     }
   }
