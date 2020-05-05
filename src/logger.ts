@@ -4,9 +4,8 @@ import path from "path";
 const rootFolder = path.resolve(__dirname, "../");
 const logFormat = format.combine(
   format.colorize(),
-  format.timestamp(),
   format.align(),
-  format.printf((info) => `${info.timestamp} [${info.level}]: ${info.message}`),
+  format.printf((info) => `[${info.level}]: ${info.message}`),
 );
 
 export const logger = createLogger({
