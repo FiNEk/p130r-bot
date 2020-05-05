@@ -7,6 +7,7 @@ import { CronJob } from "cron";
 import { logger } from "../logger";
 import db from "./db";
 import Token from "../entity/Token";
+import { ReadableStreamBuffer } from "stream-buffers";
 
 class YaTTS {
   private readonly yndKey: string;
@@ -57,7 +58,7 @@ class YaTTS {
     return;
   }
 
-  public async synthesize(text: string, options?: TTSOptions): Promise<Buffer> {
+  public async synthesize(text: string, options?: TTSOptions): Promise<ReadableStreamBuffer> {
     try {
       const reqBody = new URLSearchParams();
       reqBody.append("text", text);
@@ -70,7 +71,13 @@ class YaTTS {
       const res = await this.request.post("/speech/v1/tts:synthesize", reqBody, {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
       });
-      return Buffer.from(res.data);
+      const stream = new ReadableStreamBuffer({
+        frequency: 10,
+        chunkSize: 2048,
+        autoDestroy: true,
+      });
+      stream.put(Buffer.from(res.data));
+      return stream;
     } catch (e) {
       logger.error(e, [e]);
       if (e.code === 401) {
