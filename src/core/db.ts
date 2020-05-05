@@ -2,6 +2,7 @@ import { getConnection } from "typeorm";
 import { logger } from "../logger";
 import PidorUser from "../entity/User";
 import Token from "../entity/Token";
+import Announcement from "../entity/Announcement";
 
 class Database {
   async getUser(userId: string, guildId: string, playing?: boolean): Promise<PidorUser | undefined> {
@@ -58,6 +59,29 @@ class Database {
   async getToken(): Promise<Token | undefined> {
     try {
       return getConnection().getRepository(Token).createQueryBuilder("token").orderBy("token.tid", "ASC").getOne();
+    } catch (error) {
+      logger.error(error);
+    }
+  }
+
+  async addAnnouncement(text: string): Promise<void> {
+    try {
+      await getConnection()
+        .createQueryBuilder()
+        .insert()
+        .into(Announcement)
+        .values({
+          text,
+        })
+        .execute();
+    } catch (error) {
+      logger.error(error);
+    }
+  }
+
+  async getRandomAnnouncement(): Promise<Announcement | undefined> {
+    try {
+      return getConnection().getRepository(Announcement).createQueryBuilder().orderBy("RANDOM()").getOne();
     } catch (error) {
       logger.error(error);
     }
