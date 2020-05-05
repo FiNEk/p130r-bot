@@ -1,5 +1,5 @@
 import { Command, CommandoClient, CommandoMessage } from "discord.js-commando";
-import { VoiceChannel, VoiceConnection } from "discord.js";
+import { VoiceConnection } from "discord.js";
 import { logger } from "../../logger";
 import yaTTS from "../../core/ya-tts";
 import { ReadableStreamBuffer } from "stream-buffers";

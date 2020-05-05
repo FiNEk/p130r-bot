@@ -29,7 +29,7 @@ export class Engine {
         ["pidor", "Contest commands"],
       ])
       .registerDefaultGroups()
-      .registerDefaultCommands()
+      .registerDefaultCommands({ eval: false, unknownCommand: false })
       .registerCommandsIn(path.resolve(__dirname, "../", "commands"));
     //register events
     this.registerEvents();
