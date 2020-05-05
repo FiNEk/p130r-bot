@@ -1,8 +1,9 @@
 import fs from "fs";
 import { Command, CommandoClient, CommandoMessage } from "discord.js-commando";
-import { Message } from "discord.js";
+import { Message, VoiceChannel } from "discord.js";
 import { logger } from "../../logger";
 import yaTTS from "../../core/ya-tts";
+import { ReadableStreamBuffer } from "stream-buffers";
 
 export default class TTS extends Command {
   constructor(client: CommandoClient) {
@@ -31,29 +32,32 @@ export default class TTS extends Command {
           format: "oggopus",
           voice: "filipp",
         });
-        const connection = await message.member.voice.channel.join();
-        const audioDispatcher = connection
-          .play(oggStream, {
-            type: "ogg/opus",
-          })
-          .on("end", () => {
-            console.log("dispatcher finish");
-            connection.disconnect();
-          });
-        return new Promise<Message | null>((resolve, reject) => {
-          connection.on("disconnect", () => {
-            resolve(null);
-          });
-          audioDispatcher.on("error", (error) => {
-            logger.error(error);
-            connection.disconnect();
-            reject(message.reply(error.message));
-          });
-        });
+        await this.playAudioStream(oggStream, message.member.voice.channel);
+        return null;
       }
       return message.reply("Нужно находится в голосовом канале");
     } catch (error) {
       return message.reply(error.message);
     }
+  }
+
+  private async playAudioStream(stream: ReadableStreamBuffer, channel: VoiceChannel): Promise<void> {
+    const connection = await channel.join();
+    const audioDispatcher = connection
+      .play(stream, {
+        type: "ogg/opus",
+      })
+      .on("finish", () => connection.disconnect());
+    stream.stop();
+    return new Promise<void>((resolve, reject) => {
+      connection.on("disconnect", () => {
+        resolve();
+      });
+      audioDispatcher.on("error", (error) => {
+        logger.error(error);
+        connection.disconnect();
+        reject(error.message);
+      });
+    });
   }
 }
