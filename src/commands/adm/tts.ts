@@ -1,6 +1,5 @@
-import fs from "fs";
 import { Command, CommandoClient, CommandoMessage } from "discord.js-commando";
-import { Message, VoiceChannel } from "discord.js";
+import { VoiceChannel } from "discord.js";
 import { logger } from "../../logger";
 import yaTTS from "../../core/ya-tts";
 import { ReadableStreamBuffer } from "stream-buffers";
@@ -30,7 +29,6 @@ export default class TTS extends Command {
       if (message.member.voice.channel) {
         const oggStream = await yaTTS.synthesize(text, {
           format: "oggopus",
-          voice: "filipp",
         });
         await this.playAudioStream(oggStream, message.member.voice.channel);
         return null;

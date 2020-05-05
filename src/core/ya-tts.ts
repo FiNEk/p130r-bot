@@ -10,6 +10,7 @@ import Token from "../entity/Token";
 import { ReadableStreamBuffer } from "stream-buffers";
 
 class YaTTS {
+  private currentVoice: AvailableTTSvoices = "filipp";
   private readonly yndKey: string;
   private readonly serviceAccId: string = "aje6hdd4lhb0k1g1lvsu";
   private readonly serviceKeyId: string = "ajeg9479o31bv4d0lcn1";
@@ -32,6 +33,16 @@ class YaTTS {
       this.setAuthHeader(newToken);
     });
     this.tokenRefresh.start();
+  }
+
+  set voice(voice: AvailableTTSvoices) {
+    const availableVoices = ["oksana", "jane", "omazh", "zahar", "erkanyavas", "alena", "filipp", "alyss", "nick"];
+    if (availableVoices.includes(voice)) {
+      this.currentVoice = voice;
+    }
+  }
+  get voice() {
+    return String(this.currentVoice) as AvailableTTSvoices;
   }
 
   public async init(): Promise<void> {
@@ -62,10 +73,13 @@ class YaTTS {
     try {
       const reqBody = new URLSearchParams();
       reqBody.append("text", text);
+      reqBody.append("voice", this.voice);
       if (options) {
         for (const [key, value] of _.toPairs(options)) {
-          const str = `${value}`;
-          reqBody.append(key, str);
+          if (key !== "voice") {
+            const str = `${value}`;
+            reqBody.append(key, str);
+          }
         }
       }
       const res = await this.request.post("/speech/v1/tts:synthesize", reqBody, {
@@ -143,11 +157,10 @@ type IamTokenResponse = { iamToken: string; expiresAt: string };
 type TTSOptions = {
   ssml?: string;
   lang?: "ru-RU" | "en-US" | "tr-TR";
-  voice?: "oksana" | "jane" | "omazh" | "zahar" | "erkanyavas" | "alena" | "filipp" | "alyss" | "nick"; // alyss, nick - english voices | alena, filipp - premium voices (RU ONLY)
   emotion?: "neutral" | "good" | "evil";
   speed?: number; // min 0.1, max 3.0
   format?: "lpcm" | "oggopus";
   sampleRateHertz?: "48000" | "16000" | "8000";
 };
-
+type AvailableTTSvoices = "oksana" | "jane" | "omazh" | "zahar" | "erkanyavas" | "alena" | "filipp" | "alyss" | "nick"; // alyss, nick - english voices | alena, filipp - premium voices
 export default new YaTTS();
