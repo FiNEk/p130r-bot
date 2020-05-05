@@ -128,6 +128,18 @@ class Database {
       logger.error(error);
     }
   }
+
+  async getGuildResults(guildId: string): Promise<Pidor[] | undefined> {
+    try {
+      return getConnection()
+            .getRepository(Pidor)
+            .find({
+              where: { guildId: guildId }
+            });
+    } catch (error) {
+      logger.error(error);
+    }
+  }
 }
 
 const db = new Database();
