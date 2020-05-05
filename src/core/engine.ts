@@ -23,7 +23,7 @@ export class Engine {
       .registerGroups([
         ["adm", "Administration commands"],
         ["misc", "Misc commands"],
-        ["pidor", "Contest commands"]
+        ["pidor", "Contest commands"],
       ])
       .registerDefaultGroups()
       .registerDefaultCommands()
