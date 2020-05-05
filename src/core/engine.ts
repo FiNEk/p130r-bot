@@ -1,9 +1,10 @@
 import path from "path";
-import { CommandoClient } from "discord.js-commando";
+import { promises as fs } from "fs";
 import config from "config";
+import { CommandoClient } from "discord.js-commando";
+import { createConnection } from "typeorm";
 import { logger } from "../logger";
 import yaTTS from "./ya-tts";
-import { promises as fs } from "fs";
 
 export class Engine {
   public commandoClient = new CommandoClient({
@@ -16,6 +17,10 @@ export class Engine {
       logger.error("token not found");
       process.exit(1);
     }
+    //sqlite
+    await createConnection();
+    //tts
+    await yaTTS.init();
     //register commands
     this.commandoClient.registry
       .registerDefaultTypes()
@@ -31,15 +36,6 @@ export class Engine {
     this.registerEvents();
     //login to discord
     await this.commandoClient.login(this.TOKEN);
-
-    // tts helloworld, remove later
-    try {
-      await yaTTS.refreshIamToken();
-      const file = await yaTTS.synthesize("привет мир", { format: "oggopus" });
-      await fs.writeFile(path.resolve(__dirname, "../../", "output.ogg"), file, { encoding: "utf8" });
-    } catch (e) {
-      logger.error(e, [e]);
-    }
   }
 
   private registerEvents(): void {
