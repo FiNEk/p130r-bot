@@ -1,6 +1,7 @@
 import { getConnection } from "typeorm";
 import { logger } from "../logger";
 import PidorUser from "../entity/User";
+import Pidor from "../entity/Result";
 import Token from "../entity/Token";
 import Announcement from "../entity/Announcement";
 
@@ -63,6 +64,48 @@ class Database {
       logger.error(error);
     }
   }
+
+  async getPlayers(guildId: string): Promise<PidorUser[] | undefined> {
+    try {
+      return getConnection()
+            .getRepository(PidorUser)
+            .find({
+              where: { guildId: guildId }
+            });
+    } catch (error) {
+      logger.error(error);
+    }
+  }
+
+  async getResult(guildId: string, date: number): Promise<Pidor | undefined> {
+    try {
+      return getConnection()
+            .getRepository(Pidor)
+            .findOne({
+              where: { guildId: guildId, resultDate: date }
+            });
+    } catch (error) {
+      logger.error(error);
+    }
+  }
+
+  async addResult(guildId: string, time: number, winnerId: string) {
+    try {
+      await getConnection()
+        .createQueryBuilder()
+        .insert()
+        .into(Pidor)
+        .values({
+          guildId: guildId,
+          resultTimestamp: time,
+          winnerId: winnerId,
+        })
+        .execute();
+    } catch (error) {
+      logger.error(error);
+    }
+  }
+}
 
   async addAnnouncement(text: string): Promise<void> {
     try {
