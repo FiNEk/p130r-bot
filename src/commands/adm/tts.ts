@@ -6,7 +6,8 @@ import { ReadableStreamBuffer } from "stream-buffers";
 import path from "path";
 
 export default class TTS extends Command {
-  constructor(client: CommandoClient) {
+  private readonly resultMessage?: string;
+  constructor(client: CommandoClient, resultMessage?: string) {
     super(client, {
       name: "tts",
       aliases: ["say"],
@@ -23,6 +24,7 @@ export default class TTS extends Command {
       clientPermissions: ["MANAGE_MESSAGES"],
       userPermissions: ["MANAGE_MESSAGES"],
     });
+    this.resultMessage = resultMessage;
   }
 
   async run(message: CommandoMessage, { text }: { text: string }) {
@@ -35,7 +37,11 @@ export default class TTS extends Command {
         await this.playDrumRoll(connection);
         await this.playAudioStream(oggStream, connection);
         connection.disconnect();
-        return null;
+        if (this.resultMessage !== undefined) {
+          return message.say(this.resultMessage);
+        } else {
+          return null;
+        }
       }
       return message.reply("Нужно находится в голосовом канале");
     } catch (error) {

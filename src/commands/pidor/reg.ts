@@ -6,7 +6,7 @@ export default class Reg extends Command {
   constructor(client: CommandoClient) {
     super(client, {
       name: "reg",
-      aliases: ["register"],
+      aliases: ["register", "pidoreg"],
       group: "pidor",
       memberName: "reg",
       description: "Регистрирует в конкурсе 'Пидор дня' на текущем сервере.",
