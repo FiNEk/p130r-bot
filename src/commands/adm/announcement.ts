@@ -21,7 +21,7 @@ export default class Announcement extends Command {
           key: "text",
           prompt: "какой текст добавить",
           type: "string",
-          default: " ",
+          default: "",
         },
       ],
       clientPermissions: ["MANAGE_MESSAGES"],
@@ -35,6 +35,12 @@ export default class Announcement extends Command {
         const randomAnnouncement = await db.getRandomAnnouncement();
         return message.reply(randomAnnouncement?.text);
       } else if (command === "add") {
+        if (text.length === 0) {
+          return message.reply("нельзя добавить пустой анонс");
+        }
+        if (!/{winner}/.test(text)) {
+          return message.reply("не найден {winner}");
+        }
         await db.addAnnouncement(text);
         return message.reply("успешно добавлено");
       } else {
