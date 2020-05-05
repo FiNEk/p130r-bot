@@ -1,5 +1,4 @@
 import path from "path";
-import { promises as fs } from "fs";
 import config from "config";
 import { CommandoClient } from "discord.js-commando";
 import { createConnection } from "typeorm";
