@@ -1,5 +1,6 @@
 {
   "token": {
     "discord": "PIDOR_TOKEN"
-  }
+  },
+  "yaKey": "PIDOR_YANDEX"
 }

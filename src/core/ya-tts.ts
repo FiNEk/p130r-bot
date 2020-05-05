@@ -1,6 +1,6 @@
 import axios, { AxiosInstance } from "axios";
 import jwt from "jsonwebtoken";
-import fs from "fs";
+import config from "config";
 import path from "path";
 import _ from "lodash";
 import { CronJob } from "cron";
@@ -23,9 +23,9 @@ class YaTTS {
   constructor() {
     const pemPath = path.resolve(__dirname, "../../", "private.pem");
     logger.info(`reading pem key in ${pemPath}`);
-    this.yndKey = fs.readFileSync(pemPath).toString();
+    this.yndKey = config.get("yaKey");
     if (!this.yndKey) {
-      throw new Error("JWT pem not found");
+      throw new Error("$PIDOR_YANDEX not found");
     }
     this.tokenRefresh = new CronJob("0 */6 * * *", async () => {
       logger.info("Updating iamtoken @cronjob");
