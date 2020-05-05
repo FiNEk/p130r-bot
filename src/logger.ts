@@ -3,16 +3,17 @@ import path from "path";
 
 const { combine, printf } = format;
 const rootFolder = path.resolve(__dirname, "../");
-const myFormat = printf((info) => `${info.timestamp} [${info.level}]: - ${info.message}`);
-const appendTimestamp = format((info) => {
-  info.timestamp = new Date().toJSON();
-  return info;
-});
+const logFormat = format.combine(
+  format.colorize(),
+  format.timestamp(),
+  format.align(),
+  format.printf((info) => `${info.timestamp} [${info.level}]: ${info.message}`),
+);
 
 export const logger = createLogger({
   level: "info",
   exitOnError: true,
-  format: combine(appendTimestamp(), myFormat),
+  format: logFormat,
   transports: [
     new transports.File({
       filename: "bot-error.log",
