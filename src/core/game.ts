@@ -19,6 +19,7 @@ export class Game {
   async getResult(date: number): Promise<{ result: Pidor | undefined; isNew: boolean }> {
     try {
       let result = await Database.getResult(this.guildId, date);
+      logger.info(JSON.stringify(result));
       if (result === undefined) {
         const user = await this.roll();
         if (user !== undefined) {
