@@ -15,6 +15,8 @@ export default class FreeGame extends Command {
     '//*[@id="dieselReactWrapper"]/div/div[4]/main/div/div/div/div/div[2]/section[2]/div/div/section/div/div[1]/div/div/a/div/div/div[1]/div[1]/div/img';
   private readonly gameXpath =
     '//*[@id="dieselReactWrapper"]/div/div[4]/main/div/div/div/div/div[2]/section[2]/div/div/section/div/div[1]/div/div/a/div/div/div[3]';
+  private readonly hrefXpath =
+    '//*[@id="dieselReactWrapper"]/div/div[4]/main/div/div/div/div/div[2]/section[2]/div/div/section/div/div[1]/div/div/a';
 
   constructor(client: CommandoClient) {
     super(client, {
@@ -59,14 +61,16 @@ export default class FreeGame extends Command {
       await egsPage.goto("https://www.epicgames.com/store/en-US/free-games");
       await egsPage.waitForXPath(this.gameXpath);
       const egsData = await egsPage.evaluate(
-        (gameXpath: string, coverXpath: string) => {
+        (gameXpath: string, coverXpath: string, hrefXpath: string) => {
           const currentGame = document.evaluate(gameXpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null)
             .singleNodeValue as HTMLAnchorElement;
           const gameCover = document.evaluate(coverXpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null)
             .singleNodeValue as HTMLImageElement;
+          const gameUrl = document.evaluate(coverXpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null)
+            .singleNodeValue as HTMLAnchorElement;
           const gameInfo = currentGame.innerText.split("\n");
           return {
-            gameUrl: currentGame.href,
+            gameUrl: gameUrl.href,
             gameName: gameInfo[0],
             freeUntil: gameInfo[1],
             coverUrl: gameCover.src,
@@ -74,6 +78,7 @@ export default class FreeGame extends Command {
         },
         this.gameXpath,
         this.coverXpath,
+        this.hrefXpath,
       );
       await browser.close();
       return egsData;
