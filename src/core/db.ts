@@ -81,9 +81,13 @@ class Database {
     try {
       return getConnection()
         .getRepository(Pidor)
-        .findOne({
-          where: [{ guildId: guildId }, { resultDate: Equal(date) }],
-        });
+        .createQueryBuilder()
+        .select("*")
+        .where("guildId = :guildId AND resultDate = :date", { guildId, date })
+        .getOne();
+      // .findOne({
+      //   where: { guildId: guildId, resultDate: Equal(date) },
+      // });
     } catch (error) {
       logger.error(error);
     }
