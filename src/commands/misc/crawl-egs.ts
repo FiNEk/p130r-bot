@@ -62,19 +62,13 @@ export default class FreeGame extends Command {
         (gameXpath: string, coverXpath: string) => {
           const currentGame = document.evaluate(gameXpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null)
             .singleNodeValue as HTMLAnchorElement;
-
           const gameCover = document.evaluate(coverXpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null)
             .singleNodeValue as HTMLImageElement;
-
-          let gameName = currentGame.innerText.slice(9);
-          const lineBreak = gameName.indexOf("\n");
-          gameName = gameName.slice(0, lineBreak);
-          const lastLineBreak = currentGame.innerText.lastIndexOf("\n");
-          const freeUntil = currentGame.innerText.slice(lastLineBreak + 1);
+          const gameInfo = currentGame.innerText.split("\n");
           return {
             gameUrl: currentGame.href,
-            gameName,
-            freeUntil,
+            gameName: gameInfo[0],
+            freeUntil: gameInfo[1],
             coverUrl: gameCover.src,
           };
         },
