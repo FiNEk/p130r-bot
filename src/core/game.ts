@@ -12,6 +12,7 @@ export class Game {
 
   async getTodayResult(): Promise<{ result: Pidor | undefined; isNew: boolean }> {
     const date = Math.floor(new Date().setUTCHours(0, 0, 0, 0) / 1000);
+    logger.info(date.toString(10));
     return this.getResult(date);
   }
 

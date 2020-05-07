@@ -1,4 +1,4 @@
-import { getConnection } from "typeorm";
+import { getConnection, MoreThanOrEqual } from "typeorm";
 import { logger } from "../logger";
 import PidorUser from "../entity/User";
 import Pidor from "../entity/Result";
@@ -82,7 +82,7 @@ class Database {
       return getConnection()
         .getRepository(Pidor)
         .findOne({
-          where: { guildId: guildId, resultDate: date },
+          where: { guildId: guildId, resultDate: MoreThanOrEqual(date) },
         });
     } catch (error) {
       logger.error(error);
