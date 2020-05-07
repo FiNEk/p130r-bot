@@ -26,7 +26,7 @@ export default class Roll extends Command {
         const numOnly = /^[0-9]+$/;
         if (!numOnly.test(range)) return message.reply("максимальный ролл должен быть цифрой");
         const rangeMax = parseInt(range, 10);
-        const roll = this.roll(1, rangeMax);
+        const roll = Roll.randomNumber(1, rangeMax);
         return message.reply(`роллит ${roll}`);
       }
       // full range
@@ -35,8 +35,8 @@ export default class Roll extends Command {
       const dashIndex = range.indexOf("-");
       const rangeMin = parseInt(range.slice(0, dashIndex), 10);
       const rangeMax = parseInt(range.slice(dashIndex + 1), 10);
-      if (rangeMin >= rangeMax) return message.reply("минимум не может быть больше максимума");
-      const roll = this.roll(rangeMin, rangeMax);
+      if (rangeMin > rangeMax) return message.reply("минимум не может быть больше максимума");
+      const roll = Roll.randomNumber(rangeMin, rangeMax);
       return message.reply(`роллит ${roll}`);
     } catch (error) {
       logger.error(error.message, [error]);
@@ -44,7 +44,7 @@ export default class Roll extends Command {
     }
   }
 
-  private roll(min: number, max: number) {
+  static randomNumber(min: number, max: number): number {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 }
