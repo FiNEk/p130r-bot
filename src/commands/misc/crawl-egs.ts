@@ -36,7 +36,7 @@ export default class FreeGame extends Command {
       const reply = (await message.reply("ждите...")) as Message;
       const egsData = await this.crawlEgs();
       const embedMsg = FreeGame.buildEmbed(egsData);
-      return await reply.edit(embedMsg);
+      return await reply.edit(embedMsg, { content: "" });
     } catch (error) {
       logger.error(error.message, [error]);
       return message.reply(error.message);
