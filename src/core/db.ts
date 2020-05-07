@@ -79,17 +79,11 @@ class Database {
 
   async getResult(guildId: string, date: number): Promise<Pidor | undefined> {
     try {
-      return (
-        getConnection()
-          .getRepository(Pidor)
-          // .createQueryBuilder()
-          // .select("*")
-          // .where("guildId = :guildId AND resultDate = :date", { guildId, date })
-          // .getOne();
-          .findOne({
-            where: { guildId: guildId, resultTimestamp: Equal(date) },
-          })
-      );
+      return getConnection()
+        .getRepository(Pidor)
+        .findOne({
+          where: { guildId: guildId, resultTimestamp: Equal(date) },
+        });
     } catch (error) {
       logger.error(error);
     }
