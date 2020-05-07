@@ -19,7 +19,8 @@ export default class SetTTS extends Command {
         },
       ],
       clientPermissions: ["MANAGE_MESSAGES"],
-      userPermissions: ["MANAGE_MESSAGES"],
+      // userPermissions: ["MANAGE_MESSAGES"],
+      ownerOnly: true,
     });
   }
 
