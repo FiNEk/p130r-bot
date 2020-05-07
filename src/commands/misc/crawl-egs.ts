@@ -67,7 +67,7 @@ export default class FreeGame extends Command {
             .singleNodeValue as HTMLAnchorElement;
           const gameCover = document.evaluate(coverXpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null)
             .singleNodeValue as HTMLImageElement;
-          const gameUrl = document.evaluate(coverXpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null)
+          const gameUrl = document.evaluate(hrefXpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null)
             .singleNodeValue as HTMLAnchorElement;
           const gameInfo = currentGame.innerText.split("\n");
           return {
