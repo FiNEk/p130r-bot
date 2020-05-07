@@ -11,13 +11,15 @@ export class Game {
   }
 
   async getTodayResult(): Promise<{ result: Pidor | undefined; isNew: boolean }> {
-    const date = (new Date().setUTCHours(0, 0, 0, 0) - 10800000) / 1000;
+    const date = Math.floor((new Date().setUTCHours(0, 0, 0, 0) - 10800000) / 1000);
+    logger.info(date.toString(10));
     return this.getResult(date);
   }
 
   async getResult(date: number): Promise<{ result: Pidor | undefined; isNew: boolean }> {
     try {
       let result = await Database.getResult(this.guildId, date);
+      logger.info(JSON.stringify(result));
       if (result === undefined) {
         const user = await this.roll();
         if (user !== undefined) {
