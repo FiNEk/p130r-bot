@@ -13,15 +13,15 @@ export default class Announcement extends Command {
       args: [
         {
           key: "command",
-          prompt: "add | get",
+          prompt: "add or get",
           type: "string",
           default: "get",
+          oneOf: ["add", "get"],
         },
         {
           key: "text",
           prompt: "какой текст добавить",
           type: "string",
-          default: "",
         },
       ],
       clientPermissions: ["MANAGE_MESSAGES"],
@@ -29,7 +29,7 @@ export default class Announcement extends Command {
     });
   }
 
-  async run(message: CommandoMessage, { command, text }: { command: string; text: string }) {
+  async run(message: CommandoMessage, { command, text }: { command: "add" | "get"; text: string }) {
     try {
       if (command === "get") {
         const randomAnnouncement = await db.getRandomAnnouncement();

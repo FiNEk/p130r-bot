@@ -16,25 +16,41 @@ export default class TTS extends Command {
       description: "Произнести `<текст>` в голосовом канале",
       args: [
         {
+          // 0 - без эффекта, 1 - барабаны
+          key: "soundEffect",
+          prompt: "Воспроизвести вступительный эффект?",
+          type: "integer",
+          default: 0,
+          validate: (soundEffect: number): boolean => soundEffect === 0 || soundEffect === 1,
+        },
+        {
           key: "text",
           prompt: "Текст который нужно произнести",
           type: "string",
         },
       ],
-      clientPermissions: ["MANAGE_MESSAGES"],
+      throttling: {
+        usages: 1,
+        duration: 30,
+      },
+      clientPermissions: ["SPEAK"],
       userPermissions: ["MANAGE_MESSAGES"],
     });
     this.resultMessage = resultMessage;
   }
 
-  async run(message: CommandoMessage, { text }: { text: string }) {
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+  async run(message: CommandoMessage, { text, soundEffect }: { text: string; soundEffect: 0 | 1 }) {
     try {
       if (message.member.voice.channel) {
         const oggStream = await yaTTS.synthesize(text, {
           format: "oggopus",
         });
         const connection = await message.member.voice.channel.join();
-        await this.playDrumRoll(connection);
+        if (soundEffect === 1) {
+          const drumPath = path.resolve(__dirname, "../../../", "assets/drumroll.mp3");
+          await this.playFromFile(connection, drumPath);
+        }
         await this.playAudioStream(oggStream, connection);
         connection.disconnect();
         if (this.resultMessage !== undefined) {
@@ -54,11 +70,10 @@ export default class TTS extends Command {
     }
   }
 
-  private async playDrumRoll(connection: VoiceConnection): Promise<void> {
+  private async playFromFile(connection: VoiceConnection, fullPath: string): Promise<void> {
     try {
-      const drumPath = path.resolve(__dirname, "../../../", "assets/drumroll.mp3");
       return new Promise((resolve, reject) => {
-        const drumDispatcher = connection.play(drumPath);
+        const drumDispatcher = connection.play(fullPath);
         drumDispatcher.on("finish", () => resolve());
         drumDispatcher.on("error", (error) => {
           logger.error(error);

@@ -27,9 +27,9 @@ export default class Play extends Command {
         "{winner}",
         winnerMember?.toString() ?? winnerUser?.username ?? "какой-то хуй",
       );
-      const ttsMessage = announcement?.text.replace("{winner}", winnerMember?.displayName ?? "какой-то хуй") ?? "";
+      const ttsMessage = announcement?.text.replace(/{winner}/gi, winnerMember?.displayName ?? "какой-то хуй") ?? "";
       if (result.isNew) {
-        new TTS(this.client, winnerMessage).run(message, { text: ttsMessage });
+        new TTS(this.client, winnerMessage).run(message, { text: ttsMessage, soundEffect: 1 });
         return null;
       } else {
         return message.say(
