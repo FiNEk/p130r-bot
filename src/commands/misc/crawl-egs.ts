@@ -12,9 +12,9 @@ type EgsCrawlResult = {
 
 export default class FreeGame extends Command {
   private readonly coverXpath =
-    '//*[@id="dieselReactWrapper"]/div/div[4]/div[1]/div[4]/div[2]/div/div/section/div/div[1]/div/a/div/div[1]/div/div/img';
+    '//*[@id="dieselReactWrapper"]/div/div[4]/main/div/div/div/div/div[2]/section[2]/div/div/section/div/div[1]/div/div/a/div/div/div[1]/div[1]/div/img';
   private readonly gameXpath =
-    '//*[@id="dieselReactWrapper"]/div/div[4]/div[1]/div[4]/div[2]/div/div/section/div/div[1]/div/a';
+    '//*[@id="dieselReactWrapper"]/div/div[4]/main/div/div/div/div/div[2]/section[2]/div/div/section/div/div[1]/div/div/a/div/div/div[3]';
 
   constructor(client: CommandoClient) {
     super(client, {
