@@ -21,7 +21,7 @@ export default class TTS extends Command {
           prompt: "Воспроизвести вступительный эффект?",
           type: "integer",
           default: 0,
-          validate: (soundEffect: number) => soundEffect === 0 || soundEffect === 1,
+          validate: (soundEffect: number): boolean => soundEffect === 0 || soundEffect === 1,
         },
         {
           key: "text",
@@ -39,6 +39,7 @@ export default class TTS extends Command {
     this.resultMessage = resultMessage;
   }
 
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   async run(message: CommandoMessage, { text, soundEffect }: { text: string; soundEffect: 0 | 1 }) {
     try {
       if (message.member.voice.channel) {
@@ -47,7 +48,8 @@ export default class TTS extends Command {
         });
         const connection = await message.member.voice.channel.join();
         if (soundEffect === 1) {
-          await this.playDrumRoll(connection);
+          const drumPath = path.resolve(__dirname, "../../../", "assets/drumroll.mp3");
+          await this.playFromFile(connection, drumPath);
         }
         await this.playAudioStream(oggStream, connection);
         connection.disconnect();
@@ -68,11 +70,10 @@ export default class TTS extends Command {
     }
   }
 
-  private async playDrumRoll(connection: VoiceConnection): Promise<void> {
+  private async playFromFile(connection: VoiceConnection, fullPath: string): Promise<void> {
     try {
-      const drumPath = path.resolve(__dirname, "../../../", "assets/drumroll.mp3");
       return new Promise((resolve, reject) => {
-        const drumDispatcher = connection.play(drumPath);
+        const drumDispatcher = connection.play(fullPath);
         drumDispatcher.on("finish", () => resolve());
         drumDispatcher.on("error", (error) => {
           logger.error(error);
