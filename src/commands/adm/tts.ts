@@ -16,25 +16,38 @@ export default class TTS extends Command {
       description: "Произнести `<текст>` в голосовом канале",
       args: [
         {
+          // 0 - без эффекта, 1 - барабаны
+          key: "soundEffect",
+          prompt: "Воспроизвести вступительный эффект?",
+          type: "integer",
+          default: 0,
+        },
+        {
           key: "text",
           prompt: "Текст который нужно произнести",
           type: "string",
         },
       ],
-      clientPermissions: ["MANAGE_MESSAGES"],
+      throttling: {
+        usages: 1,
+        duration: 30,
+      },
+      clientPermissions: ["SPEAK"],
       userPermissions: ["MANAGE_MESSAGES"],
     });
     this.resultMessage = resultMessage;
   }
 
-  async run(message: CommandoMessage, { text }: { text: string }) {
+  async run(message: CommandoMessage, { text, soundEffect }: { text: string; soundEffect: 0 | 1 }) {
     try {
       if (message.member.voice.channel) {
         const oggStream = await yaTTS.synthesize(text, {
           format: "oggopus",
         });
         const connection = await message.member.voice.channel.join();
-        await this.playDrumRoll(connection);
+        if (soundEffect === 1) {
+          await this.playDrumRoll(connection);
+        }
         await this.playAudioStream(oggStream, connection);
         connection.disconnect();
         if (this.resultMessage !== undefined) {
