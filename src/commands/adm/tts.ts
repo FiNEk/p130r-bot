@@ -21,6 +21,7 @@ export default class TTS extends Command {
           prompt: "Воспроизвести вступительный эффект?",
           type: "integer",
           default: 0,
+          validate: (soundEffect: number) => soundEffect === 0 || soundEffect === 1,
         },
         {
           key: "text",
