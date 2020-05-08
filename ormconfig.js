@@ -4,9 +4,9 @@ module.exports = {
   database: "./database.sqlite",
   synchronize: true,
   logging: false,
-  entities: ["src/entity/**/*.ts", "out/entity/**/*.js"],
-  migrations: ["src/migration/**/*.ts", "out/migration/**/*.js"],
-  subscribers: ["src/subscriber/**/*.ts", "out/subscriber/**/*.js"],
+  entities: ["src/entity/**/*.ts"],
+  migrations: ["src/migration/**/*.ts"],
+  subscribers: ["src/subscriber/**/*.ts"],
   cli: {
     entitiesDir: "src/entity",
     migrationsDir: "src/migration",
