@@ -7,9 +7,8 @@ import path from "path";
 import _ from "lodash";
 
 export default class TTS extends Command {
-  private readonly resultMessage?: string;
   private readonly soundEffectRegex: RegExp = /{[a-zA-Z]+}/i;
-  constructor(client: CommandoClient, resultMessage?: string) {
+  constructor(client: CommandoClient, private readonly resultMessage?: string) {
     super(client, {
       name: "tts",
       aliases: ["say"],
@@ -30,25 +29,14 @@ export default class TTS extends Command {
       clientPermissions: ["SPEAK"],
       userPermissions: ["MANAGE_MESSAGES"],
     });
-    this.resultMessage = resultMessage;
   }
 
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-  async run(message: CommandoMessage, { text }: { text: string }) {
+  public async run(message: CommandoMessage, { text }: { text: string }) {
     try {
       if (message.member.voice.channel) {
         const sequence = this.parseSequence(text);
-        const ttsPromises: Promise<ReadableStreamBuffer>[] = [];
-        sequence.forEach((part) => {
-          if (!this.soundEffectRegex.test(part)) {
-            ttsPromises.push(
-              yaTTS.synthesize(part, {
-                format: "oggopus",
-              }),
-            );
-          }
-        });
-        const ttsParts = await Promise.all(ttsPromises);
+        const ttsParts = await this.synthesizeSequence(sequence);
         const connection = await message.member.voice.channel.join();
         let ttsCursor = 0;
         for (const part of sequence) {
@@ -119,6 +107,20 @@ export default class TTS extends Command {
       logger.error(error);
       connection.disconnect();
     }
+  }
+
+  private async synthesizeSequence(sequence: string[]): Promise<ReadableStreamBuffer[]> {
+    const ttsPromises: Promise<ReadableStreamBuffer>[] = [];
+    for (const part of sequence) {
+      if (!this.soundEffectRegex.test(part)) {
+        ttsPromises.push(
+          yaTTS.synthesize(part, {
+            format: "oggopus",
+          }),
+        );
+      }
+    }
+    return await Promise.all(ttsPromises);
   }
 
   private parseSequence(text: string): string[] {
