@@ -10,7 +10,7 @@ type EgsCrawlResult = {
   freeUntil: string;
 };
 
-export default class FreeGame extends Command {
+export default class CrawlEgs extends Command {
   private readonly coverXpath =
     '//*[@id="dieselReactWrapper"]/div/div[4]/main/div/div/div/div/div[2]/section[2]/div/div/section/div/div[1]/div/div/a/div/div/div[1]/div[1]/div/img';
   private readonly gameXpath =
@@ -37,7 +37,7 @@ export default class FreeGame extends Command {
     try {
       const reply = (await message.reply("ждите...")) as Message;
       const egsData = await this.crawlEgs();
-      const embedMsg = FreeGame.buildEmbed(egsData);
+      const embedMsg = CrawlEgs.buildEmbed(egsData);
       await reply.edit("Сейчас раздают бесплатно");
       return await reply.edit(embedMsg);
     } catch (error) {
