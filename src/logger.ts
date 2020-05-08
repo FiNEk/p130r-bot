@@ -13,7 +13,7 @@ export const logger = createLogger({
   exitOnError: true,
   format: logFormat,
   transports: [
-    new transports.Console(),
+    new transports.Console({ level: process.env.NODE_ENV === "development" ? "debug" : "info" }),
     new transports.File({
       filename: "bot-error.log",
       dirname: rootFolder,
@@ -27,7 +27,3 @@ export const logger = createLogger({
     }),
   ],
 });
-
-if (process.env.NODE_ENV === "development") {
-  logger.add(new transports.Console({ level: "debug" }));
-}
