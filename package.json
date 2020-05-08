@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "compile": "npx tsc",
-    "start": "npm run compile && node out/app.js"
+    "start": "npm run compile && node out/app.js",
+    "dev": "nodemon src/app.ts"
   },
   "keywords": [],
   "author": "",
@@ -50,6 +51,7 @@
     "eslint": "latest",
     "eslint-config-prettier": "latest",
     "eslint-plugin-prettier": "latest",
+    "nodemon": "^2.0.3",
     "prettier": "latest",
     "ts-node": "^8.10.1"
   }
