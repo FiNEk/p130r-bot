@@ -1,13 +1,15 @@
-import path from "path";
 import config from "config";
 import { CommandoClient } from "discord.js-commando";
 import { createConnection } from "typeorm";
 import { logger } from "../logger";
 import yaTTS from "./ya-tts";
+import * as ChatCommands from "../commands";
+import _ from "lodash";
 
 export class Engine {
   public commandoClient = new CommandoClient({
     commandPrefix: config.get("prefix"),
+    owner: ["66140245917179904", "75200170815397888"],
   });
   private readonly DISCORD_TOKEN: string = config.get("token.discord");
 
@@ -24,6 +26,8 @@ export class Engine {
     //tts
     await yaTTS.init();
     //register commands
+    const commandsArr = _.valuesIn(ChatCommands);
+    logger.debug(`${commandsArr.length} commands loaded`);
     this.commandoClient.registry
       .registerDefaultTypes()
       .registerGroups([
@@ -33,7 +37,7 @@ export class Engine {
       ])
       .registerDefaultGroups()
       .registerDefaultCommands({ eval: false, unknownCommand: false })
-      .registerCommandsIn(path.resolve(__dirname, "../", "commands"));
+      .registerCommands(commandsArr);
     //register events
     this.registerEvents();
     //login to discord
