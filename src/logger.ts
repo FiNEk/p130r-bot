@@ -27,3 +27,7 @@ export const logger = createLogger({
     }),
   ],
 });
+
+if (process.env.NODE_ENV === "development") {
+  logger.add(new transports.Console({ level: "debug" }));
+}
