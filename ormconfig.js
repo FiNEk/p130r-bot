@@ -1,15 +1,16 @@
+const rootDir = process.env.NODE_ENV === "development" ? "src" : "out";
 module.exports = {
   type: "sqlite",
   name: "default",
   database: "./database.sqlite",
   synchronize: true,
   logging: false,
-  entities: ["src/entity/**/*.ts"],
-  migrations: ["src/migration/**/*.ts"],
-  subscribers: ["src/subscriber/**/*.ts"],
+  entities: [`${rootDir}/entity/**/*.{ts,js}`],
+  migrations: [`${rootDir}/migration/**/*.{ts,js}`],
+  subscribers: [`${rootDir}/subscriber/**/*.{ts,js}`],
   cli: {
-    entitiesDir: "src/entity",
-    migrationsDir: "src/migration",
-    subscribersDir: "src/subscriber",
+    entitiesDir: `${rootDir}/entity`,
+    migrationsDir: `${rootDir}/migration`,
+    subscribersDir: `${rootDir}/subscriber`,
   },
 };
