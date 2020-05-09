@@ -2,6 +2,7 @@ import axios, { AxiosInstance } from "axios";
 import jwt from "jsonwebtoken";
 import _ from "lodash";
 import { resolve } from "path";
+import { readFileSync } from "fs";
 import { CronJob } from "cron";
 import { logger } from "../logger";
 import db from "./db";
@@ -20,7 +21,7 @@ class YaTTS {
   private tokenRefresh: CronJob;
 
   constructor() {
-    this.yndKey = resolve(__dirname, "../../", "yandex.pem");
+    this.yndKey = readFileSync(resolve(__dirname, "../../", "yandex.pem")).toString();
     if (!this.yndKey) {
       throw new Error("Yandex key not found");
     }
