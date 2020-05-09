@@ -27,7 +27,7 @@ export default class TTS extends Command {
         duration: 30,
       },
       clientPermissions: ["SPEAK"],
-      userPermissions: ["MANAGE_MESSAGES"],
+      // userPermissions: ["MANAGE_MESSAGES"],
     });
   }
 
