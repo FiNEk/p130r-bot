@@ -9,3 +9,4 @@ out/
 *.sqlite
 private.pem
 token.txt
+.env
