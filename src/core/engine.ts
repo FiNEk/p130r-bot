@@ -17,9 +17,6 @@ export class Engine {
     if (!this.DISCORD_TOKEN) {
       logger.error("discord token not found");
       process.exit(1);
-    } else if (!config.get("yaKey")) {
-      logger.error("yandex key not found");
-      process.exit(1);
     }
     //sqlite
     await createConnection();
