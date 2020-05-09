@@ -41,7 +41,7 @@ export default class Roll extends Command {
       const rangeMin = parseInt(range.slice(0, dashIndex), 10);
       const rangeMax = parseInt(range.slice(dashIndex + 1), 10);
       if (rangeMin > rangeMax) return null;
-      if (rangeMax >= Number.MAX_SAFE_INTEGER) return null;
+      if (rangeMax >= Number.MAX_SAFE_INTEGER || rangeMin <= Number.MIN_SAFE_INTEGER) return null;
       const roll = Roll.randomNumber(rangeMin, rangeMax);
       return message.reply(`роллит ${roll}`);
     } catch (error) {
