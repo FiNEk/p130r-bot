@@ -1,5 +1,7 @@
-import Database from "./db";
 import _ from "lodash";
+import { startOfToday, getUnixTime } from "date-fns";
+import { utcToZonedTime } from "date-fns-tz";
+import Database from "./db";
 import Pidor from "../entity/Result";
 import { logger } from "../logger";
 
@@ -11,15 +13,17 @@ export class Game {
   }
 
   async getTodayResult(): Promise<{ result: Pidor | undefined; isNew: boolean }> {
-    const date = Math.floor((new Date().setUTCHours(0, 0, 0, 0) - 10800000) / 1000);
-    logger.info(date.toString(10));
-    return this.getResult(date);
+    const today = utcToZonedTime(startOfToday(), "Europe/Moscow");
+    logger.debug(today.toString());
+    const unix = getUnixTime(today);
+    logger.debug(unix.toString());
+    return this.getResult(unix);
   }
 
   async getResult(date: number): Promise<{ result: Pidor | undefined; isNew: boolean }> {
     try {
       let result = await Database.getResult(this.guildId, date);
-      logger.info(JSON.stringify(result));
+      logger.debug(JSON.stringify(result));
       if (result === undefined) {
         const user = await this.roll();
         if (user !== undefined) {
