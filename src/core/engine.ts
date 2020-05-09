@@ -54,13 +54,13 @@ export class Engine {
       logger.error(error.message, [error]);
     });
     // hate deadline
-    this.commandoClient.on("message", (message) => {
-      if (message.author.id === "132271100347416576") {
-        const deadlinePidor = message.guild?.emojis.cache.get("629750562203631656");
-        if (!_.isNil(deadlinePidor)) {
-          message.react(deadlinePidor);
-        }
-      }
-    });
+    // this.commandoClient.on("message", (message) => {
+    //   if (message.author.id === "132271100347416576") {
+    //     const deadlinePidor = message.guild?.emojis.cache.get("629750562203631656");
+    //     if (!_.isNil(deadlinePidor)) {
+    //       message.react(deadlinePidor);
+    //     }
+    //   }
+    // });
   }
 }
