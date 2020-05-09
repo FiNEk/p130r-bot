@@ -7,6 +7,6 @@ temp/
 out/
 *.log
 *.sqlite
-private.pem
+yandex.pem
 token.txt
 .env
