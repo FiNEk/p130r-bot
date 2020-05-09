@@ -48,13 +48,22 @@ export class Engine {
     this.commandoClient.once("ready", () => {
       if (this.commandoClient.user) {
         logger.info(`Logged in as ${this.commandoClient.user.tag}!`);
-        this.commandoClient.user.setActivity("Oppressing minorities").catch((err) => {
+        this.commandoClient.user.setActivity("Бью дедлайна палкой").catch((err) => {
           logger.error(err.message, [err]);
         });
       }
     });
     this.commandoClient.on("error", (error) => {
-      logger.error(error.message, error);
+      logger.error(error.message, [error]);
+    });
+    // hate deadline
+    this.commandoClient.on("message", (message) => {
+      if (message.author.id === "132271100347416576") {
+        const deadlinePidor = message.guild?.emojis.cache.get("629750562203631656");
+        if (!_.isNil(deadlinePidor)) {
+          message.react(deadlinePidor);
+        }
+      }
     });
   }
 }
