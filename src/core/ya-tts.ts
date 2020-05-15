@@ -1,7 +1,8 @@
 import axios, { AxiosInstance } from "axios";
 import jwt from "jsonwebtoken";
-import config from "config";
 import _ from "lodash";
+import { resolve } from "path";
+import { readFileSync } from "fs";
 import { CronJob } from "cron";
 import { logger } from "../logger";
 import db from "./db";
@@ -20,9 +21,9 @@ class YaTTS {
   private tokenRefresh: CronJob;
 
   constructor() {
-    this.yndKey = config.get("yaKey");
+    this.yndKey = readFileSync(resolve(__dirname, "../../", "yandex.pem")).toString();
     if (!this.yndKey) {
-      throw new Error("$PIDOR_YANDEX not found");
+      throw new Error("Yandex key not found");
     }
     this.tokenRefresh = new CronJob("0 */6 * * *", async () => {
       logger.info("Updating iamtoken @cronjob");
@@ -40,7 +41,7 @@ class YaTTS {
       throw new Error("Unavailable voice");
     }
   }
-  get voice() {
+  get voice(): string {
     return String(this.currentVoice) as AvailableTTSvoices;
   }
 

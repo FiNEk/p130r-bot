@@ -15,7 +15,7 @@ export default class Play extends Command {
       description: "Выбирает победителя конкурса 'Пидор дня' на текущем сервере.",
     });
   }
-
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   async run(message: CommandoMessage) {
     try {
       const game = new Game(message.guild.id);
@@ -24,12 +24,13 @@ export default class Play extends Command {
       const winnerMember = await message.guild.member(winnerUser)?.fetch();
       const announcement = await Database.getRandomAnnouncement();
       const winnerMessage = announcement?.text.replace(
-        "{winner}",
+        /{winner}/gi,
         winnerMember?.toString() ?? winnerUser?.username ?? "какой-то хуй",
       );
-      const ttsMessage = announcement?.text.replace(/{winner}/gi, winnerMember?.displayName ?? "какой-то хуй") ?? "";
+      const ttsMessage =
+        "{drums} " + announcement?.text.replace(/{winner}/gi, winnerMember?.displayName ?? "какой-то хуй") ?? "";
       if (result.isNew) {
-        new TTS(this.client, winnerMessage).run(message, { text: ttsMessage, soundEffect: 1 });
+        new TTS(this.client, winnerMessage).run(message, { text: ttsMessage });
         return null;
       } else {
         return message.say(

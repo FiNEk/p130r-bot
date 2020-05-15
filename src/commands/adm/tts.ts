@@ -4,10 +4,11 @@ import { logger } from "../../logger";
 import yaTTS from "../../core/ya-tts";
 import { ReadableStreamBuffer } from "stream-buffers";
 import path from "path";
+import _ from "lodash";
 
 export default class TTS extends Command {
-  private readonly resultMessage?: string;
-  constructor(client: CommandoClient, resultMessage?: string) {
+  private readonly soundEffectRegex: RegExp = /{[a-zA-Z]+}/i;
+  constructor(client: CommandoClient, private readonly resultMessage?: string) {
     super(client, {
       name: "tts",
       aliases: ["say"],
@@ -15,14 +16,6 @@ export default class TTS extends Command {
       memberName: "tts",
       description: "Произнести `<текст>` в голосовом канале",
       args: [
-        {
-          // 0 - без эффекта, 1 - барабаны
-          key: "soundEffect",
-          prompt: "Воспроизвести вступительный эффект?",
-          type: "integer",
-          default: 0,
-          validate: (soundEffect: number): boolean => soundEffect === 0 || soundEffect === 1,
-        },
         {
           key: "text",
           prompt: "Текст который нужно произнести",
@@ -34,24 +27,29 @@ export default class TTS extends Command {
         duration: 30,
       },
       clientPermissions: ["SPEAK"],
-      userPermissions: ["MANAGE_MESSAGES"],
+      // userPermissions: ["MANAGE_MESSAGES"],
     });
-    this.resultMessage = resultMessage;
   }
 
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-  async run(message: CommandoMessage, { text, soundEffect }: { text: string; soundEffect: 0 | 1 }) {
+  public async run(message: CommandoMessage, { text }: { text: string }) {
     try {
       if (message.member.voice.channel) {
-        const oggStream = await yaTTS.synthesize(text, {
-          format: "oggopus",
-        });
+        const sequence = this.parseSequence(text);
+        const ttsParts = await this.synthesizeSequence(sequence);
         const connection = await message.member.voice.channel.join();
-        if (soundEffect === 1) {
-          const drumPath = path.resolve(__dirname, "../../../", "assets/drumroll.mp3");
-          await this.playFromFile(connection, drumPath);
+        let ttsCursor = 0;
+        for (const part of sequence) {
+          if (this.soundEffectRegex.test(part)) {
+            const soundName = _.trim(part, "{}");
+            logger.debug(`playing from file ${soundName}`);
+            await this.playFromFile(soundName, connection);
+          } else {
+            logger.debug("playing TTS");
+            await this.playAudioStream(ttsParts[ttsCursor], connection);
+            ttsCursor++;
+          }
         }
-        await this.playAudioStream(oggStream, connection);
         connection.disconnect();
         if (this.resultMessage !== undefined) {
           return message.say(this.resultMessage);
@@ -70,9 +68,12 @@ export default class TTS extends Command {
     }
   }
 
-  private async playFromFile(connection: VoiceConnection, fullPath: string): Promise<void> {
+  private async playFromFile(effectName: string, connection: VoiceConnection): Promise<void> {
     try {
+      // TODO вносить название саунда и путь к файлу в базу;
+      const fullPath = effectName === "drums" ? path.resolve(__dirname, "../../../", "assets/drumroll.mp3") : "";
       return new Promise((resolve, reject) => {
+        logger.debug(`looking for a sound file ${fullPath}`);
         const drumDispatcher = connection.play(fullPath);
         drumDispatcher.on("finish", () => resolve());
         drumDispatcher.on("error", (error) => {
@@ -106,5 +107,42 @@ export default class TTS extends Command {
       logger.error(error);
       connection.disconnect();
     }
+  }
+
+  private async synthesizeSequence(sequence: string[]): Promise<ReadableStreamBuffer[]> {
+    const ttsPromises: Promise<ReadableStreamBuffer>[] = [];
+    for (const part of sequence) {
+      if (!this.soundEffectRegex.test(part)) {
+        ttsPromises.push(
+          yaTTS.synthesize(part, {
+            format: "oggopus",
+          }),
+        );
+      }
+    }
+    return await Promise.all(ttsPromises);
+  }
+
+  private parseSequence(text: string): string[] {
+    const words = text.split(" ");
+    logger.debug(words);
+    const sentences: string[] = [];
+    let sentence = "";
+    for (const word of words) {
+      if (this.soundEffectRegex.test(word)) {
+        if (sentence !== "") {
+          sentences.push(sentence.trimEnd());
+          sentence = "";
+        }
+        sentences.push(word);
+      } else {
+        sentence += `${word} `;
+      }
+    }
+    if (sentence !== "") {
+      sentences.push(sentence);
+    }
+    logger.debug(sentences);
+    return sentences;
   }
 }
