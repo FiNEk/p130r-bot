@@ -6,6 +6,7 @@ import Announcement from "./adm/announcement";
 // misc
 import CrawlEgs from "./misc/crawl-egs";
 import Roll from "./misc/roll";
+import Fap from "./misc/fap";
 // pidor game
 import Play from "./pidor/play";
 import Unreg from "./pidor/unreg";
@@ -14,4 +15,4 @@ import Stat from "./pidor/stat";
 // utils
 import UnknownCommand from "./utils/unknown-command";
 
-export { TTS, Nuke, SetTTS, Announcement, CrawlEgs, Roll, Play, Unreg, Reg, Stat, UnknownCommand };
+export { TTS, Nuke, SetTTS, Announcement, CrawlEgs, Roll, Play, Unreg, Reg, Stat, UnknownCommand, Fap };
