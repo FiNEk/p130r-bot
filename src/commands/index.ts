@@ -1,5 +1,6 @@
 // adm
 import TTS from "./adm/tts";
+import TTSat from "./adm/tts-at";
 import Nuke from "./adm/nuke";
 import SetTTS from "./adm/set-tts";
 import Announcement from "./adm/announcement";
@@ -15,4 +16,4 @@ import Stat from "./pidor/stat";
 // utils
 import UnknownCommand from "./utils/unknown-command";
 
-export { TTS, Nuke, SetTTS, Announcement, CrawlEgs, Roll, Play, Unreg, Reg, Stat, UnknownCommand, Fap };
+export { TTS, Nuke, SetTTS, Announcement, CrawlEgs, Roll, Play, Unreg, Reg, Stat, UnknownCommand, Fap, TTSat };
