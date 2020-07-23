@@ -10,6 +10,7 @@ module.exports = {
     "plugin:prettier/recommended", // Must be last!
   ],
   rules: {
-    // e.g. "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "off",
   },
 };

@@ -45,9 +45,9 @@ export class Engine {
     this.commandoClient.once("ready", () => {
       if (this.commandoClient.user) {
         logger.info(`Logged in as ${this.commandoClient.user.tag}!`);
-        this.commandoClient.user.setActivity("Бью дедлайна палкой").catch((err) => {
-          logger.error(err.message, [err]);
-        });
+        // this.commandoClient.user.setActivity("Бью дедлайна палкой").catch((err) => {
+        //   logger.error(err.message, [err]);
+        // });
       }
     });
     this.commandoClient.on("error", (error) => {
