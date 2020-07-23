@@ -15,5 +15,21 @@ import Reg from "./pidor/reg";
 import Stat from "./pidor/stat";
 // utils
 import UnknownCommand from "./utils/unknown-command";
+import SetActivity from "./utils/set-activity";
 
-export { TTS, Nuke, SetTTS, Announcement, CrawlEgs, Roll, Play, Unreg, Reg, Stat, UnknownCommand, Fap, TTSat };
+export {
+  TTS,
+  Nuke,
+  SetTTS,
+  Announcement,
+  CrawlEgs,
+  Roll,
+  Play,
+  Unreg,
+  Reg,
+  Stat,
+  UnknownCommand,
+  Fap,
+  TTSat,
+  SetActivity,
+};
