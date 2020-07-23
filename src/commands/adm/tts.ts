@@ -1,5 +1,5 @@
 import { Command, CommandoClient, CommandoMessage } from "discord.js-commando";
-import { VoiceConnection } from "discord.js";
+import { VoiceChannel, VoiceConnection } from "discord.js";
 import { logger } from "../../logger";
 import yaTTS from "../../core/ya-tts";
 import { ReadableStreamBuffer } from "stream-buffers";
@@ -31,26 +31,10 @@ export default class TTS extends Command {
     });
   }
 
-  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   public async run(message: CommandoMessage, { text }: { text: string }) {
     try {
       if (message.member.voice.channel) {
-        const sequence = this.parseSequence(text);
-        const ttsParts = await this.synthesizeSequence(sequence);
-        const connection = await message.member.voice.channel.join();
-        let ttsCursor = 0;
-        for (const part of sequence) {
-          if (this.soundEffectRegex.test(part)) {
-            const soundName = _.trim(part, "{}");
-            logger.debug(`playing from file ${soundName}`);
-            await this.playFromFile(soundName, connection);
-          } else {
-            logger.debug("playing TTS");
-            await this.playAudioStream(ttsParts[ttsCursor], connection);
-            ttsCursor++;
-          }
-        }
-        connection.disconnect();
+        await this.play(message.member.voice.channel, text);
         if (this.resultMessage !== undefined) {
           return message.say(this.resultMessage);
         } else {
@@ -66,6 +50,24 @@ export default class TTS extends Command {
     } catch (error) {
       return message.reply(error.message);
     }
+  }
+  public async play(channel: VoiceChannel, text: string) {
+    const sequence = this.parseSequence(text);
+    const ttsParts = await this.synthesizeSequence(sequence);
+    const connection = await channel.join();
+    let ttsCursor = 0;
+    for (const part of sequence) {
+      if (this.soundEffectRegex.test(part)) {
+        const soundName = _.trim(part, "{}");
+        logger.debug(`playing from file ${soundName}`);
+        await this.playFromFile(soundName, connection);
+      } else {
+        logger.debug("playing TTS");
+        await this.playAudioStream(ttsParts[ttsCursor], connection);
+        ttsCursor++;
+      }
+    }
+    connection.disconnect();
   }
 
   private async playFromFile(effectName: string, connection: VoiceConnection): Promise<void> {
