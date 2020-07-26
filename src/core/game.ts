@@ -4,6 +4,7 @@ import { utcToZonedTime } from "date-fns-tz";
 import Database from "./db";
 import Pidor from "../entity/Result";
 import { logger } from "../logger";
+import config from "../app.config";
 
 export class Game {
   private readonly guildId: string;
@@ -12,20 +13,20 @@ export class Game {
     this.guildId = guildId;
   }
 
-  async getTodayResult(): Promise<{ result: Pidor | undefined; isNew: boolean }> {
+  async getTodayResult(authorId: string): Promise<{ result: Pidor | undefined; isNew: boolean }> {
     const today = utcToZonedTime(startOfToday(), "Europe/Moscow");
     logger.debug(today.toString());
     const unix = getUnixTime(today);
     logger.debug(unix.toString());
-    return this.getResult(unix);
+    return this.getResult(unix, authorId);
   }
 
-  async getResult(date: number): Promise<{ result: Pidor | undefined; isNew: boolean }> {
+  async getResult(date: number, authorId: string): Promise<{ result: Pidor | undefined; isNew: boolean }> {
     try {
       let result = await Database.getResult(this.guildId, date);
       logger.debug(JSON.stringify(result));
       if (result === undefined) {
-        const user = await this.roll();
+        const user = await this.isHatedAuthor(authorId) ? await this.roll() : authorId;
         if (user !== undefined) {
           await Database.addResult(this.guildId, date, user);
           result = await Database.getResult(this.guildId, date);
@@ -43,5 +44,13 @@ export class Game {
   async roll(): Promise<string | undefined> {
     const players = await Database.getPlayers(this.guildId);
     return _.sample(players)?.id;
+  }
+
+  async isHatedAuthor(authorId: string): Promise<boolean> {
+    const result = !!(await Database.getHatedAuthor(authorId));
+    if (result) {
+      logger.debug(`Author id was found in hated users`);
+    }
+    return result;
   }
 }
