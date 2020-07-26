@@ -4,7 +4,6 @@ import { utcToZonedTime } from "date-fns-tz";
 import Database from "./db";
 import Pidor from "../entity/Result";
 import { logger } from "../logger";
-import config from "../app.config";
 
 export class Game {
   private readonly guildId: string;
@@ -26,7 +25,7 @@ export class Game {
       let result = await Database.getResult(this.guildId, date);
       logger.debug(JSON.stringify(result));
       if (result === undefined) {
-        const user = await this.isHatedAuthor(authorId) ? await this.roll() : authorId;
+        const user = (await this.isHatedAuthor(authorId)) ? authorId : await this.roll();
         if (user !== undefined) {
           await Database.addResult(this.guildId, date, user);
           result = await Database.getResult(this.guildId, date);
