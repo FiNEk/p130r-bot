@@ -4,6 +4,7 @@ import PidorUser from "../entity/User";
 import Pidor from "../entity/Result";
 import Token from "../entity/Token";
 import Announcement from "../entity/Announcement";
+import HatedUser from "../entity/HatedUsers";
 
 class Database {
   async getUser(userId: string, guildId: string, playing?: boolean): Promise<PidorUser | undefined> {
@@ -89,7 +90,7 @@ class Database {
     }
   }
 
-  async addResult(guildId: string, time: number, winnerId: string) {
+  async addResult(guildId: string, time: number, winnerId: string): Promise<void> {
     try {
       await getConnection()
         .createQueryBuilder()
@@ -136,6 +137,33 @@ class Database {
         .find({
           where: { guildId: guildId },
         });
+    } catch (error) {
+      logger.error(error);
+    }
+  }
+
+  async getHatedAuthor(userId: string): Promise<HatedUser | undefined> {
+    try {
+      return getConnection()
+        .getRepository(HatedUser)
+        .findOne({
+          where: { id: userId },
+        });
+    } catch (error) {
+      logger.error(error);
+    }
+  }
+
+  async addHatedAuthor(userId: string): Promise<void> {
+    try {
+      await getConnection()
+        .createQueryBuilder()
+        .insert()
+        .into(HatedUser)
+        .values({
+          id: userId,
+        })
+        .execute();
     } catch (error) {
       logger.error(error);
     }
