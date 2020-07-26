@@ -15,11 +15,10 @@ export default class Play extends Command {
       description: "Выбирает победителя конкурса 'Пидор дня' на текущем сервере.",
     });
   }
-  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   async run(message: CommandoMessage) {
     try {
       const game = new Game(message.guild.id);
-      const result = await game.getTodayResult();
+      const result = await game.getTodayResult(message.author.id);
       const winnerUser = await new User(this.client, { id: result.result?.winnerId }).fetch();
       const winnerMember = await message.guild.member(winnerUser)?.fetch();
       const announcement = await Database.getRandomAnnouncement();
