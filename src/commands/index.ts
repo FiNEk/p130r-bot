@@ -4,6 +4,7 @@ import TTSat from "./adm/tts-at";
 import Nuke from "./adm/nuke";
 import SetTTS from "./adm/set-tts";
 import Announcement from "./adm/announcement";
+import AddHatedUser from "./adm/add-hated-user";
 // misc
 import CrawlEgs from "./misc/crawl-egs";
 import Roll from "./misc/roll";
@@ -32,4 +33,5 @@ export {
   Fap,
   TTSat,
   SetActivity,
+  AddHatedUser,
 };
