@@ -4,6 +4,7 @@ import { logger } from "../logger";
 import config from "../app.config";
 import yaTTS from "./ya-tts";
 import * as ChatCommands from "../commands";
+import * as DiscordEvents from "../events";
 import _ from "lodash";
 
 export class Engine {
@@ -36,9 +37,11 @@ export class Engine {
       this.registerEvents();
       //login to discord
       await this.commandoClient.login(this.discordToken);
+      //sync
+      await this.syncServers();
     } catch (error) {
       logger.error("Startup failed");
-      logger.error(error);
+      logger.error(error.message, [error]);
       process.exit(1);
     }
   }
@@ -49,8 +52,14 @@ export class Engine {
         logger.info(`Logged in as ${this.commandoClient.user.tag}!`);
       }
     });
-    this.commandoClient.on("error", (error) => {
-      logger.error(error.message, [error]);
-    });
+    this.commandoClient.on("error", DiscordEvents.error);
+    this.commandoClient.on("guildMemberAdd", DiscordEvents.userJoined);
+    this.commandoClient.on("guildMemberRemove", DiscordEvents.userLeft);
+  }
+
+  private async syncServers() {
+    // logger.debug(JSON.stringify(this.commandoClient.guilds, null, 2));
+    logger.debug(JSON.stringify(this.commandoClient.guilds, null, 2));
+    // this.commandoClient.fetchGuildPreview();
   }
 }
