@@ -1,12 +1,54 @@
-import { Equal, getConnection } from "typeorm";
+import { Equal, getConnection, InsertResult, UpdateResult } from "typeorm";
 import { logger } from "../logger";
 import PidorUser from "../entity/User";
 import Pidor from "../entity/Result";
 import Token from "../entity/Token";
 import Announcement from "../entity/Announcement";
 import HatedUser from "../entity/HatedUsers";
+import ActiveGuildUser from "../entity/ActiveGuildUser";
+import { isNullishOrEmpty } from "../utils";
 
 class Database {
+  async updateGuildUser(
+    userId: string,
+    guildId: string,
+    joined: boolean,
+  ): Promise<UpdateResult | InsertResult | undefined> {
+    try {
+      const connection = await getConnection();
+      const existingUser = connection.getRepository(ActiveGuildUser).findOne({
+        where: {
+          id: userId,
+          guildId,
+        },
+      });
+
+      if (isNullishOrEmpty(existingUser)) {
+        return await connection
+          .createQueryBuilder()
+          .insert()
+          .into(ActiveGuildUser)
+          .values([
+            {
+              id: userId,
+              guildId,
+              isActiveUser: joined,
+            },
+          ])
+          .execute();
+      }
+
+      return await connection
+        .createQueryBuilder()
+        .update(ActiveGuildUser)
+        .set({ isActiveUser: joined })
+        .where("id = :id", { id: userId })
+        .execute();
+    } catch (e) {
+      logger.error(e.message, [e]);
+    }
+  }
+
   async getUser(userId: string, guildId: string, playing?: boolean): Promise<PidorUser | undefined> {
     try {
       return getConnection()
@@ -19,7 +61,7 @@ class Database {
           },
         });
     } catch (error) {
-      logger.error(error);
+      logger.error(error.message, [error]);
       return undefined;
     }
   }
@@ -38,7 +80,7 @@ class Database {
         .onConflict(`(id, guildId) DO UPDATE SET isPlaying=${playing ?? true ? 1 : 0}`)
         .execute();
     } catch (error) {
-      logger.error(error);
+      logger.error(error.message, [error]);
     }
   }
 
@@ -54,7 +96,7 @@ class Database {
         })
         .execute();
     } catch (error) {
-      logger.error(error);
+      logger.error(error.message, [error]);
     }
   }
 
@@ -74,7 +116,7 @@ class Database {
           where: { guildId: guildId },
         });
     } catch (error) {
-      logger.error(error);
+      logger.error(error.message, [error]);
     }
   }
 
@@ -86,7 +128,7 @@ class Database {
           where: { guildId: guildId, resultTimestamp: Equal(date) },
         });
     } catch (error) {
-      logger.error(error);
+      logger.error(error.message, [error]);
     }
   }
 
@@ -103,7 +145,7 @@ class Database {
         })
         .execute();
     } catch (error) {
-      logger.error(error);
+      logger.error(error.message, [error]);
     }
   }
 
@@ -118,7 +160,7 @@ class Database {
         })
         .execute();
     } catch (error) {
-      logger.error(error);
+      logger.error(error.message, [error]);
     }
   }
 
@@ -138,7 +180,7 @@ class Database {
           where: { guildId: guildId },
         });
     } catch (error) {
-      logger.error(error);
+      logger.error(error.message, [error]);
     }
   }
 
@@ -150,7 +192,7 @@ class Database {
           where: { id: userId },
         });
     } catch (error) {
-      logger.error(error);
+      logger.error(error.message, [error]);
     }
   }
 
@@ -165,7 +207,7 @@ class Database {
         })
         .execute();
     } catch (error) {
-      logger.error(error);
+      logger.error(error.message, [error]);
     }
   }
 }
