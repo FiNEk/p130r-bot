@@ -1,11 +1,28 @@
 import { createLogger, format, transports } from "winston";
 import path from "path";
+import { isNullishOrEmpty } from "./utils";
+import { valuesIn } from "lodash";
+
+function customPrint(info: TransformableInfo) {
+  const meta = valuesIn(info.metadata);
+  let out = `${info.timestamp} [${info.level}]: ${info.message}`;
+  if (!isNullishOrEmpty(meta)) {
+    for (const error of meta) {
+      if (!isNullishOrEmpty(error.stack)) {
+        out = out + "\n" + error.stack;
+      }
+    }
+  }
+  return out;
+}
 
 const rootFolder = path.resolve(__dirname, "../");
 const logFormat = format.combine(
   format.colorize(),
   format.align(),
-  format.printf((info) => `[${info.level}]: ${info.message}`),
+  format.timestamp(),
+  format.metadata({ fillExcept: ["message", "level", "timestamp"] }),
+  format.printf(customPrint),
 );
 
 export const logger = createLogger({
@@ -27,3 +44,10 @@ export const logger = createLogger({
     }),
   ],
 });
+
+interface TransformableInfo {
+  level: string;
+  message: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
+}
