@@ -10,14 +10,59 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="82e83e3c-fea6-4da5-a83d-65015a42d569" name="Default Changelist" comment="" />
+    <list default="true" id="82e83e3c-fea6-4da5-a83d-65015a42d569" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/src/utils.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/commands/adm/tts.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/commands/adm/tts.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/db.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/db.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/engine.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/engine.ts" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="TypeScript File" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="master" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitToolBoxStore">
+    <option name="projectConfigVersion" value="2" />
+    <option name="recentBranches">
+      <RecentBranches>
+        <option name="branchesForRepo">
+          <list>
+            <RecentBranchesForRepo>
+              <option name="branches">
+                <list>
+                  <RecentBranch>
+                    <option name="branchName" value="update2" />
+                    <option name="lastUsedInstant" value="1605805801" />
+                  </RecentBranch>
+                  <RecentBranch>
+                    <option name="branchName" value="master" />
+                    <option name="lastUsedInstant" value="1605805800" />
+                  </RecentBranch>
+                </list>
+              </option>
+              <option name="repositoryRootUrl" value="file://$PROJECT_DIR$" />
+            </RecentBranchesForRepo>
+          </list>
+        </option>
+      </RecentBranches>
+    </option>
   </component>
   <component name="ProjectId" id="1bSA5PbS5yGMSTJmOS6jXxcAhmI" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
@@ -31,14 +76,28 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.detected.package.standard" value="true" />
+    <property name="node.js.detected.package.tslint" value="true" />
+    <property name="node.js.path.for.package.eslint" value="project" />
+    <property name="node.js.path.for.package.standard" value="project" />
+    <property name="node.js.path.for.package.tslint" value="project" />
+    <property name="node.js.selected.package.eslint" value="(autodetect)" />
+    <property name="node.js.selected.package.standard" value="" />
+    <property name="node.js.selected.package.tslint" value="(autodetect)" />
     <property name="nodejs_package_manager_path" value="npm" />
-    <property name="ts.external.directory.path" value="$APPLICATION_HOME_DIR$/plugins/JavaScriptLanguage/jsLanguageServicesImpl/external" />
+    <property name="prettierjs.PrettierConfiguration.Package" value="$PROJECT_DIR$/node_modules/prettier" />
+    <property name="run.prettier.on.save" value="true" />
+    <property name="settings.editor.selected.configurable" value="settings.javascript.linters.eslint" />
+    <property name="ts.external.directory.path" value="$PROJECT_DIR$/node_modules/typescript/lib" />
+    <property name="vue.rearranger.settings.migration" value="true" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$" />
     </key>
   </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="SvnConfiguration">
     <configuration />
   </component>
@@ -50,11 +109,20 @@
       <option name="presentableId" value="Default" />
       <updated>1588614936277</updated>
       <workItem from="1588614937959" duration="710000" />
+      <workItem from="1605799093764" duration="6800000" />
     </task>
+    <task id="LOCAL-00001" summary="logger metadata">
+      <created>1605805854887</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1605805854887</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
-    <option name="version" value="2" />
+    <option name="version" value="3" />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
@@ -66,5 +134,25 @@
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="logger metadata" />
+    <MESSAGE value="util functions" />
+    <option name="LAST_COMMIT_MESSAGE" value="util functions" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="1626" y="0" width="1868" height="1042" key="FileDocumentManager.FileCacheConflict" timestamp="1605801473281">
+      <screen x="1600" y="0" width="1920" height="1080" />
+    </state>
+    <state x="1626" y="0" width="1868" height="1042" key="FileDocumentManager.FileCacheConflict/1600.0.1920.1080/0.180.1600.900@1600.0.1920.1080" timestamp="1605801473281" />
+    <state x="2057" y="157" key="SettingsEditor" timestamp="1605799613532">
+      <screen x="1600" y="0" width="1920" height="1080" />
+    </state>
+    <state x="2057" y="157" key="SettingsEditor/1600.0.1920.1080/0.180.1600.900@1600.0.1920.1080" timestamp="1605799613532" />
+    <state x="2220" y="238" key="run.anything.popup" timestamp="1605799273222">
+      <screen x="1600" y="0" width="1920" height="1080" />
+    </state>
+    <state x="2220" y="238" key="run.anything.popup/1600.0.1920.1080/0.180.1600.900@1600.0.1920.1080" timestamp="1605799273222" />
   </component>
 </project>
