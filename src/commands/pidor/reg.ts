@@ -15,11 +15,11 @@ export default class Reg extends Command {
 
   async run(message: CommandoMessage) {
     try {
-      const user = await Database.getUser(message.author.id, message.guild.id, true);
+      const user = await Database.getPlayer(message.author.id, message.guild.id, true);
       if (user && user.isPlaying) {
         return message.reply("ты уже зарегистрирован!");
       } else {
-        await Database.addUser(message.author.id, message.guild.id, true);
+        await Database.addPlayer(message.author.id, message.guild.id, true);
         return message.reply("успешно зарегистрирован!");
       }
     } catch (error) {

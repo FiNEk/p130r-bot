@@ -1,46 +1,87 @@
 import { Equal, getConnection, InsertResult, UpdateResult } from "typeorm";
+import { difference } from "lodash";
 import { logger } from "../logger";
-import PidorUser from "../entity/User";
-import Pidor from "../entity/Result";
-import Token from "../entity/Token";
-import Announcement from "../entity/Announcement";
+import PidorPlayer from "../entity/PidorPlayer";
+import PidorResult from "../entity/Result";
+import YandexToken from "../entity/YandexToken";
+import PidorAnnouncement from "../entity/PidorAnnouncement";
 import HatedUser from "../entity/HatedUsers";
-import ActiveGuildUser from "../entity/ActiveGuildUser";
+import User from "../entity/User";
 import { isNullishOrEmpty } from "../utils";
 
 class Database {
-  async updateGuildUser(
-    userId: string,
-    guildId: string,
-    joined: boolean,
-  ): Promise<UpdateResult | InsertResult | undefined> {
+  async syncGuild(guildId: string, userIdsToSync: string[]): Promise<void> {
     try {
-      const connection = await getConnection();
-      const existingUser = connection.getRepository(ActiveGuildUser).findOne({
+      const promises = [];
+      const dbGuildUserIds = (await this.getAllGuildUsers(guildId))?.map((user) => user.id);
+      const usersWhoLeft = difference(dbGuildUserIds, userIdsToSync);
+
+      for (const userWhoLeft of usersWhoLeft) {
+        promises.push(this.updateGuildUser(userWhoLeft, guildId, false));
+        promises.push(this.updatePlayer(userWhoLeft, guildId, false));
+      }
+      await Promise.all(promises);
+    } catch (e) {
+      logger.error(e.message, [e]);
+    }
+  }
+
+  async getGuildUser(userId: string, guildId: string): Promise<User | undefined> {
+    try {
+      return getConnection()
+        .getRepository(User)
+        .findOne({
+          where: {
+            id: userId,
+            guildId,
+          },
+        });
+    } catch (e) {
+      logger.error(e.message, [e]);
+    }
+  }
+
+  async getAllGuildUsers(guildId: string): Promise<User[] | undefined> {
+    try {
+      return getConnection().getRepository(User).find({
         where: {
-          id: userId,
           guildId,
         },
       });
+    } catch (e) {
+      logger.error(e.message, [e]);
+    }
+  }
 
-      if (isNullishOrEmpty(existingUser)) {
-        return await connection
-          .createQueryBuilder()
-          .insert()
-          .into(ActiveGuildUser)
-          .values([
-            {
-              id: userId,
-              guildId,
-              isActiveUser: joined,
-            },
-          ])
-          .execute();
-      }
-
-      return await connection
+  async addGuildUser(userId: string, guildId: string): Promise<InsertResult | undefined> {
+    try {
+      return getConnection()
         .createQueryBuilder()
-        .update(ActiveGuildUser)
+        .insert()
+        .into(User)
+        .values([
+          {
+            id: userId,
+            guildId,
+            isActiveUser: true,
+          },
+        ])
+        .execute();
+    } catch (e) {
+      logger.error(e.message, [e]);
+    }
+  }
+
+  async updateGuildUser(userId: string, guildId: string, joined: boolean): Promise<UpdateResult | undefined> {
+    try {
+      // const existingUser = await this.getGuildUser(userId, guildId);
+      // if (isNullishOrEmpty(existingUser)) {
+      //   return this.addGuildUser(userId, guildId);
+      // }
+
+      return await getConnection()
+        .createQueryBuilder()
+        .update(User)
         .set({ isActiveUser: joined })
         .where("id = :id", { id: userId })
         .execute();
@@ -49,10 +90,10 @@ class Database {
     }
   }
 
-  async getUser(userId: string, guildId: string, playing?: boolean): Promise<PidorUser | undefined> {
+  async getPlayer(userId: string, guildId: string, playing?: boolean): Promise<PidorPlayer | undefined> {
     try {
       return getConnection()
-        .getRepository(PidorUser)
+        .getRepository(PidorPlayer)
         .findOne({
           where: {
             id: userId,
@@ -66,12 +107,25 @@ class Database {
     }
   }
 
-  async addUser(userId: string, guildId: string, playing?: boolean): Promise<void> {
+  async updatePlayer(userId: string, guildId: string, playing: boolean): Promise<UpdateResult | undefined> {
+    try {
+      return getConnection()
+        .createQueryBuilder()
+        .update(PidorPlayer)
+        .set({ isPlaying: playing })
+        .where("id = :id", { id: userId })
+        .execute();
+    } catch (e) {
+      logger.error(e.message, [e]);
+    }
+  }
+
+  async addPlayer(userId: string, guildId: string, playing?: boolean): Promise<void> {
     try {
       await getConnection()
         .createQueryBuilder()
         .insert()
-        .into(PidorUser)
+        .into(PidorPlayer)
         .values({
           id: userId,
           guildId: guildId,
@@ -84,12 +138,24 @@ class Database {
     }
   }
 
+  async getPlayers(guildId: string): Promise<PidorPlayer[] | undefined> {
+    try {
+      return getConnection()
+        .getRepository(PidorPlayer)
+        .find({
+          where: { guildId: guildId },
+        });
+    } catch (error) {
+      logger.error(error.message, [error]);
+    }
+  }
+
   async addToken(token: string, expiresAt: number): Promise<void> {
     try {
       await getConnection()
         .createQueryBuilder()
         .insert()
-        .into(Token)
+        .into(YandexToken)
         .values({
           expiresAt,
           token,
@@ -100,30 +166,22 @@ class Database {
     }
   }
 
-  async getToken(): Promise<Token | undefined> {
+  async getToken(): Promise<YandexToken | undefined> {
     try {
-      return getConnection().getRepository(Token).createQueryBuilder("token").orderBy("token.tid", "ASC").getOne();
+      return getConnection()
+        .getRepository(YandexToken)
+        .createQueryBuilder("token")
+        .orderBy("token.tid", "ASC")
+        .getOne();
     } catch (error) {
       logger.error(error);
     }
   }
 
-  async getPlayers(guildId: string): Promise<PidorUser[] | undefined> {
+  async getResult(guildId: string, date: number): Promise<PidorResult | undefined> {
     try {
       return getConnection()
-        .getRepository(PidorUser)
-        .find({
-          where: { guildId: guildId },
-        });
-    } catch (error) {
-      logger.error(error.message, [error]);
-    }
-  }
-
-  async getResult(guildId: string, date: number): Promise<Pidor | undefined> {
-    try {
-      return getConnection()
-        .getRepository(Pidor)
+        .getRepository(PidorResult)
         .findOne({
           where: { guildId: guildId, resultTimestamp: Equal(date) },
         });
@@ -137,7 +195,7 @@ class Database {
       await getConnection()
         .createQueryBuilder()
         .insert()
-        .into(Pidor)
+        .into(PidorResult)
         .values({
           guildId: guildId,
           resultTimestamp: time,
@@ -154,7 +212,7 @@ class Database {
       await getConnection()
         .createQueryBuilder()
         .insert()
-        .into(Announcement)
+        .into(PidorAnnouncement)
         .values({
           text,
         })
@@ -164,18 +222,18 @@ class Database {
     }
   }
 
-  async getRandomAnnouncement(): Promise<Announcement | undefined> {
+  async getRandomAnnouncement(): Promise<PidorAnnouncement | undefined> {
     try {
-      return getConnection().getRepository(Announcement).createQueryBuilder().orderBy("RANDOM()").getOne();
+      return getConnection().getRepository(PidorAnnouncement).createQueryBuilder().orderBy("RANDOM()").getOne();
     } catch (error) {
       logger.error(error);
     }
   }
 
-  async getGuildResults(guildId: string): Promise<Pidor[] | undefined> {
+  async getGuildResults(guildId: string): Promise<PidorResult[] | undefined> {
     try {
       return getConnection()
-        .getRepository(Pidor)
+        .getRepository(PidorResult)
         .find({
           where: { guildId: guildId },
         });

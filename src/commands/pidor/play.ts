@@ -19,6 +19,8 @@ export default class Play extends Command {
     try {
       const game = new Game(message.guild.id);
       const result = await game.getTodayResult(message.author.id);
+      //https://discord.js.org/#/docs/collection/master/class/Collection
+      //random user from cache
       const winnerUser = await new User(this.client, { id: result.result?.winnerId }).fetch();
       const winnerMember = await message.guild.member(winnerUser)?.fetch();
       const announcement = await Database.getRandomAnnouncement();

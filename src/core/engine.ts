@@ -6,6 +6,8 @@ import yaTTS from "./ya-tts";
 import * as ChatCommands from "../commands";
 import * as DiscordEvents from "../events";
 import _ from "lodash";
+import { isNullishOrEmpty } from "../utils";
+import db from "./db";
 
 export class Engine {
   public commandoClient = new CommandoClient({
@@ -58,8 +60,17 @@ export class Engine {
   }
 
   private async syncServers() {
-    // logger.debug(JSON.stringify(this.commandoClient.guilds, null, 2));
-    logger.debug(JSON.stringify(this.commandoClient.guilds, null, 2));
-    // this.commandoClient.fetchGuildPreview();
+    logger.info("Syncing servers...");
+    const promises = [];
+    for (const guildElement of Array.from(this.commandoClient.guilds.cache)) {
+      const [guildId, Guild] = guildElement;
+      logger.debug(`Syncing ${guildId}`);
+      if (!isNullishOrEmpty(Guild)) {
+        const members = (await Guild.members.fetch()).map((member) => member.id);
+        promises.push(db.syncGuild(guildId, members));
+      }
+    }
+    await Promise.all(promises);
+    logger.info("Server sync done!");
   }
 }
