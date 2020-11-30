@@ -6,7 +6,7 @@ import { readFileSync } from "fs";
 import { CronJob } from "cron";
 import { logger } from "../logger";
 import db from "./db";
-import Token from "../entity/Token";
+import YandexToken from "../entity/YandexToken";
 import { ReadableStreamBuffer } from "stream-buffers";
 
 class YaTTS {
@@ -55,7 +55,7 @@ class YaTTS {
     }
   }
 
-  private static async getLocalToken(): Promise<Token | undefined> {
+  private static async getLocalToken(): Promise<YandexToken | undefined> {
     const tokenRecord = await db.getToken();
     const now = Math.floor(new Date().getTime() / 1000);
     if (tokenRecord) {

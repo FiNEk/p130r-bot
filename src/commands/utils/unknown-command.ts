@@ -1,5 +1,6 @@
 import { Command, CommandoClient, CommandoMessage } from "discord.js-commando";
 import { Message } from "discord.js";
+import appConfig from "../../app.config";
 
 export default class UnknownCommand extends Command {
   constructor(client: CommandoClient) {
@@ -14,14 +15,6 @@ export default class UnknownCommand extends Command {
     });
   }
   run(msg: CommandoMessage): Promise<Message | Message[] | null> | null {
-    return msg.reply(
-      `Команда не найдена. ${msg.anyUsage(
-        "help",
-        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-        // @ts-ignore
-        msg.guild ? undefined : null,
-        msg.guild ? undefined : null,
-      )} чтобы увидеть помощь по доступным командам.`,
-    );
+    return msg.reply(`Команда не найдена. ${appConfig.prefix}help чтобы увидеть помощь по доступным командам.`);
   }
 }
