@@ -6,8 +6,6 @@ import yaTTS from "./ya-tts";
 import * as ChatCommands from "../commands";
 import * as DiscordEvents from "../events";
 import _ from "lodash";
-import { isNullishOrEmpty } from "../utils";
-import db from "./db";
 
 export class Engine {
   public commandoClient = new CommandoClient({
@@ -40,7 +38,7 @@ export class Engine {
       //login to discord
       await this.commandoClient.login(this.discordToken);
       //sync
-      await this.syncServers();
+      // await this.syncServers();
     } catch (error) {
       logger.error("Startup failed");
       logger.error(error.message, [error]);
@@ -55,22 +53,22 @@ export class Engine {
       }
     });
     this.commandoClient.on("error", DiscordEvents.error);
-    this.commandoClient.on("guildMemberAdd", DiscordEvents.userJoined);
-    this.commandoClient.on("guildMemberRemove", DiscordEvents.userLeft);
+    // this.commandoClient.on("guildMemberAdd", DiscordEvents.userJoined);
+    // this.commandoClient.on("guildMemberRemove", DiscordEvents.userLeft);
   }
 
-  private async syncServers() {
-    logger.info("Syncing servers...");
-    const promises = [];
-    for (const guildElement of Array.from(this.commandoClient.guilds.cache)) {
-      const [guildId, Guild] = guildElement;
-      logger.debug(`Syncing ${guildId}`);
-      if (!isNullishOrEmpty(Guild)) {
-        const members = (await Guild.members.fetch()).map((member) => member.id);
-        promises.push(db.syncGuild(guildId, members));
-      }
-    }
-    await Promise.all(promises);
-    logger.info("Server sync done!");
-  }
+  // private async syncServers() {
+  //   logger.info("Syncing servers...");
+  //   const promises = [];
+  //   for (const guildElement of Array.from(this.commandoClient.guilds.cache)) {
+  //     const [guildId, Guild] = guildElement;
+  //     logger.debug(`Syncing ${guildId}`);
+  //     if (!isNullishOrEmpty(Guild)) {
+  //       const members = (await Guild.members.fetch()).map((member) => member.id);
+  //       promises.push(db.syncGuild(guildId, members));
+  //     }
+  //   }
+  //   await Promise.all(promises);
+  //   logger.info("Server sync done!");
+  // }
 }
