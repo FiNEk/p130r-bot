@@ -1,9 +1,9 @@
 import { Command, CommandoClient, CommandoMessage } from "discord.js-commando";
 import { logger } from "../../logger";
 import { Game } from "../../core/game";
-import { User } from "discord.js";
 import Database from "../../core/db";
-import TTS from "../adm/tts";
+import { isNil as isNullish } from "lodash";
+import { isNullishOrEmpty } from "../../utils";
 
 export default class Play extends Command {
   constructor(client: CommandoClient) {
@@ -18,26 +18,29 @@ export default class Play extends Command {
   async run(message: CommandoMessage) {
     try {
       const game = new Game(message.guild.id);
-      const result = await game.getTodayResult(message.author.id);
-      //https://discord.js.org/#/docs/collection/master/class/Collection
-      //random user from cache
-      const winnerUser = await new User(this.client, { id: result.result?.winnerId }).fetch();
-      const winnerMember = await message.guild.member(winnerUser)?.fetch();
-      const announcement = await Database.getRandomAnnouncement();
-      const winnerMessage = announcement?.text.replace(
-        /{winner}/gi,
-        winnerMember?.toString() ?? winnerUser?.username ?? "какой-то хуй",
-      );
-      const ttsMessage =
-        "{drums} " + announcement?.text.replace(/{winner}/gi, winnerMember?.displayName ?? "какой-то хуй") ?? "";
-      if (result.isNew) {
-        new TTS(this.client, winnerMessage).run(message, { text: ttsMessage });
-        return null;
-      } else {
+      const unixNow = Game.getTodayTimestamp();
+      const existingOne = await game.existingResult(message.guild.id, unixNow);
+      const currentGuildMembers = await message.guild.members.fetch();
+
+      if (!isNullish(existingOne)) {
+        const existingWinner = currentGuildMembers.get(existingOne.winnerId);
+        return message.say(`Пидор дня уже определен, это ${existingWinner?.displayName ?? "какой-то хуй"}`);
+      }
+
+      const randomPlayerId = await game.controlledRoll(currentGuildMembers.keyArray());
+      if (isNullishOrEmpty(randomPlayerId)) {
+        return message.say("Невозможно определить пидора дня, на сервере недостаточно активных игроков.");
+      }
+      if (!currentGuildMembers.has(randomPlayerId)) {
         return message.say(
-          `Пидор дня уже определен, это ${winnerMember?.displayName ?? winnerUser?.username ?? "какой-то хуй"}`,
+          "Пидор дня был обнаружен, но похоже что он покинул этот сервер (вот пидор!). Попробуйте запустить игру ещё раз.",
         );
       }
+      const winner = currentGuildMembers.get(randomPlayerId);
+      await game.registerWinner(message.guild.id, unixNow, randomPlayerId);
+      const announcement = await Database.getRandomAnnouncement();
+      const winnerMessage = announcement?.text.replace(/{winner}/gi, winner?.toString() ?? "какой-то хуй");
+      return message.say(winnerMessage);
     } catch (error) {
       logger.error(error);
       return message.reply("что-то пошло не так.");

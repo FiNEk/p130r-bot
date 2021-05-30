@@ -1,8 +1,8 @@
 import _ from "lodash";
-import { startOfToday, getUnixTime } from "date-fns";
+import { getUnixTime, startOfToday } from "date-fns";
 import { utcToZonedTime } from "date-fns-tz";
 import Database from "./db";
-import Pidor from "../entity/Result";
+import PidorResult from "../entity/Result";
 import { logger } from "../logger";
 
 export class Game {
@@ -12,37 +12,55 @@ export class Game {
     this.guildId = guildId;
   }
 
-  async getTodayResult(authorId: string): Promise<{ result: Pidor | undefined; isNew: boolean }> {
+  async playToday(initiatorId: string): Promise<{ result: PidorResult | undefined; isNew: boolean }> {
     const today = utcToZonedTime(startOfToday(), "Europe/Moscow");
     logger.debug(today.toString());
     const unix = getUnixTime(today);
     logger.debug(unix.toString());
-    return this.getResult(unix, authorId);
+    return this.play(unix, initiatorId);
   }
 
-  async getResult(date: number, authorId: string): Promise<{ result: Pidor | undefined; isNew: boolean }> {
+  async play(date: number, initiatorId: string): Promise<{ result: PidorResult | undefined; isNew: boolean }> {
     try {
       let result = await Database.getResult(this.guildId, date);
-      logger.debug(JSON.stringify(result));
-      if (result === undefined) {
-        const user = (await this.isHatedAuthor(authorId)) ? authorId : await this.roll();
-        if (user !== undefined) {
+      if (_.isNil(result)) {
+        const user = (await this.isHatedAuthor(initiatorId)) ? initiatorId : await this.roll();
+        if (!_.isNil(user)) {
           await Database.addResult(this.guildId, date, user);
           result = await Database.getResult(this.guildId, date);
         }
         return { result: result, isNew: true };
-      } else {
-        return { result: result, isNew: false };
       }
+      return { result: result, isNew: false };
     } catch (error) {
       logger.error(error);
       return { result: undefined, isNew: false };
     }
   }
 
+  static getTodayTimestamp(): number {
+    const today = utcToZonedTime(startOfToday(), "Europe/Moscow");
+    return getUnixTime(today);
+  }
+
+  async controlledRoll(allowedPlayers: string[]): Promise<string | undefined> {
+    const players = await Database.getPlayers(this.guildId);
+    const filtered = players?.filter((player) => allowedPlayers.includes(player.id));
+    return _.sample(filtered)?.id;
+  }
+
   async roll(): Promise<string | undefined> {
     const players = await Database.getPlayers(this.guildId);
     return _.sample(players)?.id;
+  }
+
+  async registerWinner(guildId: string, unixTimestamp: number, winnerId: string) {
+    await Database.addResult(guildId, unixTimestamp, winnerId);
+    return Database.getResult(guildId, unixTimestamp);
+  }
+
+  async existingResult(guildId: string, unixTimestamp: number) {
+    return await Database.getResult(guildId, unixTimestamp);
   }
 
   async isHatedAuthor(authorId: string): Promise<boolean> {

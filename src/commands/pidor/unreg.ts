@@ -15,9 +15,9 @@ export default class Unreg extends Command {
 
   async run(message: CommandoMessage) {
     try {
-      const user = await Database.getPlayer(message.author.id, message.guild.id, true);
+      const user = await Database.getUser(message.author.id, message.guild.id, true);
       if (user) {
-        await Database.addPlayer(message.author.id, message.guild.id, false);
+        await Database.addUser(message.author.id, message.guild.id, false);
         return message.reply("ты больше не участвуешь в фестивале.");
       } else {
         return message.reply("ты не зарегистрирован.");

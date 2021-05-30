@@ -1,9 +1,12 @@
 import { Command, CommandoClient, CommandoMessage } from "discord.js-commando";
 import { logger } from "../../logger";
 import Database from "../../core/db";
+import { fromUnixTime, getYear } from "date-fns";
 import Pidor from "../../entity/Result";
 import _ from "lodash";
-import { User, MessageEmbed } from "discord.js";
+import { MessageEmbed } from "discord.js";
+import { pluralize } from "numeralize-ru";
+import { randomColor } from "../../utils";
 
 export default class Stat extends Command {
   constructor(client: CommandoClient) {
@@ -20,6 +23,7 @@ export default class Stat extends Command {
             "Опционально можно добавить параметр: me - статистика для себя, top - за текущий год, all - за все время",
           type: "string",
           default: "top",
+          oneOf: ["top", "me", "all"],
         },
       ],
     });
@@ -27,45 +31,46 @@ export default class Stat extends Command {
 
   async run(message: CommandoMessage, { type }: { type: string }) {
     try {
-      const results = await Database.getGuildResults(message.guild.id);
-      if (results === undefined) {
+      const dbResults = (await Database.getGuildResults(message.guild.id)) ?? [];
+      const results = await this.resolveExistingMembers(dbResults, message);
+      if (results.length === 0) {
         return message.say("Похоже, пидоров здесь еще нет");
       }
+      const wasSomeUsersFiltered = dbResults.length !== results.length;
       switch (type) {
         case "all":
           const all = this.all(results);
-          const allEmbed = new MessageEmbed()
+          let allEmbed = new MessageEmbed()
             .setTitle("Результаты за все время")
-            .setColor(0x42aaf5)
-            .setDescription(
-              all
-                .map(
-                  (item) =>
-                    `${message.guild.member(new User(this.client, { id: item.userId }))?.displayName} - ${item.wins} ${
-                      item.wins === 2 || item.wins === 3 ? "раза" : "раз"
-                    }`,
-                )
-                .join("\r\n"),
+            .setColor(randomColor())
+            .addFields(
+              all.map((item, idx) => ({
+                name: `${idx === 0 ? "👑 " : ""}${message.guild.members.cache.get(item.userId)?.displayName}`,
+                value: `● ${item.wins} ${pluralize(item.wins, "раз", "раза", "раз")}`,
+              })),
             );
+          if (wasSomeUsersFiltered) {
+            allEmbed = allEmbed.setFooter("Некоторые пидоры покинули этот сервер, их результаты были скрыты.");
+          }
           return message.embed(allEmbed);
         case "me":
-          return message.reply(`ты был пидором дня ${this.personal(results, message.author.id)} раз`);
+          const result = this.personal(results, message.author.id);
+          return message.reply(`ты был пидором дня ${result} ${pluralize(result, "раз", "раза", "раз")}`);
         case "top":
         default:
           const top = this.top(results);
-          const topEmbed = new MessageEmbed()
+          let topEmbed = new MessageEmbed()
             .setTitle("Результаты за текущий год")
-            .setColor(0x42aaf5)
-            .setDescription(
-              top
-                .map(
-                  (item) =>
-                    `${message.guild.member(new User(this.client, { id: item.userId }))?.displayName} - ${item.wins} ${
-                      item.wins === 2 || item.wins === 3 ? "раза" : "раз"
-                    }`,
-                )
-                .join("\r\n"),
+            .setColor(randomColor())
+            .addFields(
+              top.map((item, idx) => ({
+                name: `${idx === 0 ? "👑 " : ""}${message.guild.members.cache.get(item.userId)?.displayName}`,
+                value: `● ${item.wins} ${pluralize(item.wins, "раз", "раза", "раз")}`,
+              })),
             );
+          if (wasSomeUsersFiltered) {
+            topEmbed = topEmbed.setFooter("Некоторые пидоры покинули этот сервер, их результаты были скрыты.");
+          }
           return message.embed(topEmbed);
       }
     } catch (error) {
@@ -74,16 +79,21 @@ export default class Stat extends Command {
     }
   }
 
+  private async resolveExistingMembers(results: Pidor[], message: CommandoMessage) {
+    const existingMembers = await message.guild.members.fetch();
+    return results.filter((result) => existingMembers.has(result.winnerId));
+  }
+
   private personal(results: Pidor[], userId: string): number {
-    const currentYear = new Date().getUTCFullYear();
+    const currentYear = getYear(new Date());
     return results.filter(
-      (pidor) => pidor.winnerId === userId && currentYear === new Date(pidor.resultTimestamp * 1000).getUTCFullYear(),
+      (pidor) => pidor.winnerId === userId && currentYear === getYear(fromUnixTime(pidor.resultTimestamp)),
     ).length;
   }
 
   private top(results: Pidor[]): { userId: string; wins: number }[] {
-    const currentYear = new Date().getUTCFullYear();
-    return this.all(results.filter((pidor) => currentYear === new Date(pidor.resultTimestamp * 1000).getUTCFullYear()));
+    const currentYear = getYear(new Date());
+    return this.all(results.filter((pidor) => currentYear === getYear(fromUnixTime(pidor.resultTimestamp))));
   }
 
   private all(results: Pidor[]): { userId: string; wins: number }[] {
