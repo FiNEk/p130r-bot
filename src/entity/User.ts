@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryColumn } from "typeorm";
+import { Entity, Column, PrimaryColumn, OneToMany } from "typeorm";
+import Result from "./Result";
 
 @Entity()
 export default class User {
@@ -11,5 +12,8 @@ export default class User {
   public guildId: string;
 
   @Column()
-  public isActiveUser: boolean;
+  public isPlaying: boolean;
+
+  @OneToMany((type) => Result, (result) => result.winner)
+  public wins: Result[];
 }
