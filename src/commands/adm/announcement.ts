@@ -33,7 +33,7 @@ export default class Announcement extends Command {
     try {
       if (command === "get") {
         const randomAnnouncement = await db.getRandomAnnouncement();
-        return message.reply(randomAnnouncement?.text);
+        return message.reply(randomAnnouncement?.text ?? "Что-то пошло не так...");
       } else if (command === "add") {
         if (text.length === 0) {
           return message.reply("нельзя добавить пустой анонс");

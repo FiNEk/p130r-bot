@@ -33,7 +33,7 @@ export default class TTS extends Command {
 
   public async run(message: CommandoMessage, { text }: { text: string }) {
     try {
-      if (message.member.voice.channel) {
+      if (message.member?.voice.channel) {
         await this.play(message.member.voice.channel, text);
         if (this.resultMessage !== undefined) {
           return message.say(this.resultMessage);

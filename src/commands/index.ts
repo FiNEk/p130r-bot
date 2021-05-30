@@ -8,7 +8,7 @@ import AddHatedUser from "./adm/add-hated-user";
 // misc
 import CrawlEgs from "./misc/crawl-egs";
 import Roll from "./misc/roll";
-import Fap from "./misc/fap";
+// import Fap from "./misc/fap";
 // pidor game
 import Play from "./pidor/play";
 import Unreg from "./pidor/unreg";
@@ -30,7 +30,7 @@ export {
   Reg,
   Stat,
   UnknownCommand,
-  Fap,
+  // Fap,
   TTSat,
   SetActivity,
   AddHatedUser,

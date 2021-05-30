@@ -42,8 +42,8 @@ export default class Nuke extends Command {
         }
         return m.createdTimestamp >= timestamp;
       });
-      await message.channel.bulkDelete(toRemove);
-      return message.reply(`вайпанул ${toRemove.size} сообщений в этом канале`);
+      // await message.channel.bulkDelete(toRemove);
+      return message.reply(`НЕ вайпанул ${toRemove.size} сообщений в этом канале`);
     } catch (error) {
       return message.reply(error.message);
     }
