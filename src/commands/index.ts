@@ -1,7 +1,7 @@
 // adm
 import TTS from "./adm/tts";
 import TTSat from "./adm/tts-at";
-import Nuke from "./adm/nuke";
+// import Nuke from "./adm/nuke";
 import SetTTS from "./adm/set-tts";
 import Announcement from "./adm/announcement";
 import AddHatedUser from "./adm/add-hated-user";
@@ -20,7 +20,7 @@ import SetActivity from "./utils/set-activity";
 
 export {
   TTS,
-  Nuke,
+  // Nuke,
   SetTTS,
   Announcement,
   CrawlEgs,

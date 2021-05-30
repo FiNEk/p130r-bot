@@ -22,10 +22,10 @@ export default class TTS extends Command {
           type: "string",
         },
       ],
-      throttling: {
-        usages: 1,
-        duration: 30,
-      },
+      // throttling: {
+      //   usages: 1,
+      //   duration: 30,
+      // },
       clientPermissions: ["SPEAK"],
       // userPermissions: ["MANAGE_MESSAGES"],
     });
