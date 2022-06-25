@@ -45,7 +45,7 @@
     "ffmpeg-static": "^4.2.0",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.15",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.7",
     "pornhub.js": "^0.2.2",
     "puppeteer": "^3.0.4",
     "reflect-metadata": "^0.1.10",
