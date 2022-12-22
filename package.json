@@ -43,7 +43,7 @@
     "erlpack": "github:discordapp/erlpack",
     "eventemitter3": "^4.0.4",
     "ffmpeg-static": "^4.2.0",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "lodash": "^4.17.15",
     "node-fetch": "^2.6.0",
     "pornhub.js": "^0.2.2",
